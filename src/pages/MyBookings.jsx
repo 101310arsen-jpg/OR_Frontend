@@ -4,11 +4,12 @@ import { Link } from 'react-router-dom'
 
 import { useAuth } from '../context/AuthContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
+import { api, ApiError, getApiErrorMessage } from '../services/api.js'
 import Header from '../components/Header.jsx'
 
 import '../App.css'
 
-const API_URL = 'http://127.0.0.1:8001'
+
 
 // ==========================================
 // 1. ПЕРЕВОДЫ СТРАНИЦЫ
@@ -157,28 +158,6 @@ const translations = {
 // 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
 // ==========================================
 
-function getErrorMessage(data, fallback) {
-  if (typeof data?.detail === 'string') {
-    return data.detail
-  }
-
-  if (data && typeof data === 'object') {
-    const messages = Object.entries(data).map(
-      ([key, value]) => {
-        const text = Array.isArray(value)
-          ? value.join(', ')
-          : String(value)
-
-        return `${key}: ${text}`
-      }
-    )
-
-    return messages.join(' | ') || fallback
-  }
-
-  return fallback
-}
-
 // Форматируем дату в зависимости от языка
 function formatDate(value, language) {
   if (!value) return '—'
@@ -231,7 +210,7 @@ function MyBookings() {
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
+  const [cancelledBookingId, setCancelledBookingId] = useState(null)
   const [cancellingId, setCancellingId] = useState(null)
   const [refreshCounter, setRefreshCounter] = useState(0)
 
@@ -243,72 +222,34 @@ function MyBookings() {
     if (!accessToken) {
       setBookings([])
       setLoading(false)
+      setError('')
+      setCancelledBookingId(null)
       return
     }
-
     const controller = new AbortController()
-
     async function loadBookings() {
       setLoading(true)
       setError('')
-
       try {
-        const response = await fetch(
-          `${API_URL}/api/booking/my/`,
-          {
-            method: 'GET',
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${accessToken}`,
-            },
-            signal: controller.signal,
-          }
-        )
-
-        const data = await response.json().catch(
-          () => null
-        )
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            throw new Error('AUTH_EXPIRED')
-          }
-
-          throw new Error(
-            getErrorMessage(data, 'LOAD_ERROR')
-          )
-        }
-
-        // Поддерживаем список и пагинацию
+        const data = await api.getMyBookings(accessToken, controller.signal)
         const items = Array.isArray(data)
           ? data
           : Array.isArray(data?.results)
             ? data.results
-            : data?.id != null
-              ? [data]
-              : []
-
-        if (!controller.signal.aborted) {
-          setBookings(items)
-        }
+            : data?.id != null ? [data] : []
+        if (!controller.signal.aborted) setBookings(items)
       } catch (err) {
-        if (err.name !== 'AbortError') {
-          console.error(
-            'Ошибка загрузки записей:',
-            err
-          )
-
-          setError(err.message || 'LOAD_ERROR')
+        if (!controller.signal.aborted) {
+          console.error('Error loading bookings:', err)
+          setError(err instanceof ApiError && err.status === 401
+            ? 'AUTH_EXPIRED'
+            : getApiErrorMessage(err, 'LOAD_ERROR'))
         }
       } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false)
-        }
+        if (!controller.signal.aborted) setLoading(false)
       }
     }
-
     loadBookings()
-
     return () => controller.abort()
   }, [accessToken, refreshCounter])
 
@@ -317,62 +258,25 @@ function MyBookings() {
   // ==========================================
 
   const handleCancel = async (booking) => {
-    if (!booking?.id || !accessToken || cancellingId !== null) {
-      return
-    }
+    if (!booking?.id || !accessToken || cancellingId !== null || booking.status !== 'active') return
 
-    const confirmationText =
-      language === 'KG'
-        ? `${t.cancelConfirm}${booking.id} ${t.cancelConfirmEnd}`
-        : `${t.cancelConfirm}${booking.id}?`
-
-    const confirmed = window.confirm(confirmationText)
-
-    if (!confirmed) return
+    const confirmationText = language === 'KG'
+      ? `${t.cancelConfirm}${booking.id} ${t.cancelConfirmEnd}`
+      : `${t.cancelConfirm}${booking.id}?`
+    if (!window.confirm(confirmationText)) return
 
     setCancellingId(booking.id)
     setError('')
-    setSuccessMessage('')
-
+    setCancelledBookingId(null)
     try {
-      const response = await fetch(
-        `${API_URL}/api/booking/${booking.id}/cancel/`,
-        {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      )
-
-      const data = await response.json().catch(
-        () => null
-      )
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('AUTH_EXPIRED')
-        }
-
-        throw new Error(
-          getErrorMessage(data, 'CANCEL_ERROR')
-        )
-      }
-
-      setSuccessMessage('CANCEL_SUCCESS')
-
-      // Загружаем актуальные записи
-      setRefreshCounter(
-        (previous) => previous + 1
-      )
+      await api.cancelBooking(booking.id, accessToken)
+      setCancelledBookingId(booking.id)
+      setRefreshCounter(previous => previous + 1)
     } catch (err) {
-      console.error(
-        'Ошибка отмены записи:',
-        err
-      )
-
-      setError(err.message || 'CANCEL_ERROR')
+      console.error('Error cancelling booking:', err)
+      setError(err instanceof ApiError && err.status === 401
+        ? 'AUTH_EXPIRED'
+        : getApiErrorMessage(err, 'CANCEL_ERROR'))
     } finally {
       setCancellingId(null)
     }
@@ -383,7 +287,7 @@ function MyBookings() {
   // ==========================================
 
   const reloadBookings = () => {
-    setSuccessMessage('')
+    setCancelledBookingId(null)
     setRefreshCounter(
       (previous) => previous + 1
     )
@@ -521,24 +425,15 @@ function MyBookings() {
             )}
 
             {/* УСПЕШНАЯ ОТМЕНА */}
-            {successMessage && (
-              <div
-                role="status"
-                style={{
-                  padding: '16px',
-                  marginBottom: '20px',
-                  background: '#eef8f0',
-                  color: '#167a3f',
-                  borderRadius: '10px',
-                }}
-              >
-                {t.cancelSuccessStart}
-                {bookings.find(
-                  (booking) => booking.id === cancellingId
-                )?.id || ''}
-                {successMessage === 'CANCEL_SUCCESS'
-                  ? t.cancelSuccessEnd
-                  : successMessage}
+            {cancelledBookingId !== null && (
+              <div role="status" style={{
+                padding: '16px',
+                marginBottom: '20px',
+                background: '#eef8f0',
+                color: '#167a3f',
+                borderRadius: '10px',
+              }}>
+                {t.cancelSuccessStart}{cancelledBookingId}{' '}{t.cancelSuccessEnd}
               </div>
             )}
 

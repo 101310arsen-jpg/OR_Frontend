@@ -1,13 +1,17 @@
 
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+
 import { useLanguage } from '../context/LanguageContext.jsx'
+import { api, getApiErrorMessage } from '../services/api.js'
+
 import Header from '../components/Header.jsx'
 import '../App.css'
 
-const API_URL = 'http://127.0.0.1:8001'
+// ==========================================
+// 1. ПЕРЕВОДЫ СТРАНИЦЫ
+// ==========================================
 
-// Переводы страницы регистрации
 const translations = {
   RU: {
     title: 'Регистрация',
@@ -88,28 +92,9 @@ const translations = {
   },
 }
 
-// Преобразование ошибки Django в текст
-function getErrorMessage(data, fallback) {
-  if (typeof data?.detail === 'string') {
-    return data.detail
-  }
-
-  if (data && typeof data === 'object') {
-    const messages = Object.entries(data).map(
-      ([field, value]) => {
-        const message = Array.isArray(value)
-          ? value.join(', ')
-          : String(value)
-
-        return `${field}: ${message}`
-      }
-    )
-
-    return messages.join(' | ') || fallback
-  }
-
-  return fallback
-}
+// ==========================================
+// 2. ОСНОВНОЙ КОМПОНЕНТ
+// ==========================================
 
 function Register() {
   const navigate = useNavigate()
@@ -131,7 +116,10 @@ function Register() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Обновляем поля формы
+  // ==========================================
+  // 3. ИЗМЕНЕНИЕ ПОЛЕЙ ФОРМЫ
+  // ==========================================
+
   const handleChange = (event) => {
     const { name, value } = event.target
 
@@ -143,7 +131,10 @@ function Register() {
     setError('')
   }
 
-  // Отправляем регистрацию в Django
+  // ==========================================
+  // 4. РЕГИСТРАЦИЯ ЧЕРЕЗ API-СЕРВИС
+  // ==========================================
+
   const handleSubmit = async (event) => {
     event.preventDefault()
 
@@ -153,44 +144,33 @@ function Register() {
     setError('')
 
     try {
-      const response = await fetch(
-        `${API_URL}/api/register/`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-          body: JSON.stringify({
-            username: form.username.trim(),
-            password: form.password,
-            first_name: form.first_name.trim(),
-            last_name: form.last_name.trim(),
-            phone: form.phone.trim(),
-            direction: form.direction,
-            course: Number(form.course),
-          }),
-        }
-      )
-
-      const data = await response.json().catch(
-        () => null
-      )
-
-      if (!response.ok) {
-        throw new Error(
-          getErrorMessage(data, t.registerError)
-        )
+      // Подготавливаем данные студента
+      const studentData = {
+        username: form.username.trim(),
+        password: form.password,
+        first_name: form.first_name.trim(),
+        last_name: form.last_name.trim(),
+        phone: form.phone.trim(),
+        direction: form.direction,
+        course: Number(form.course),
       }
 
-      // После регистрации переходим ко входу
+      // Отправляем данные в Django через api.js
+      await api.register(studentData)
+
+      // Регистрация успешна — открываем вход
       navigate('/login')
+
     } catch (err) {
       console.error('Ошибка регистрации:', err)
 
       setError(
-        err.message || t.unknownError
+        getApiErrorMessage(
+          err,
+          t.unknownError
+        )
       )
+
     } finally {
       setLoading(false)
     }
@@ -201,13 +181,16 @@ function Register() {
     gap: '8px',
   }
 
+  // ==========================================
+  // 5. ИНТЕРФЕЙС СТРАНИЦЫ
+  // ==========================================
+
   return (
     <div className="site-wrapper">
 
       {/* ОБЩАЯ ШАПКА */}
       <Header />
 
-      {/* ОСНОВНАЯ СТРАНИЦА */}
       <main
         className="section-container"
         style={{
@@ -309,7 +292,7 @@ function Register() {
               />
             </label>
 
-            {/* НОМЕР ТЕЛЕФОНА */}
+            {/* ТЕЛЕФОН */}
             <label style={fieldStyle}>
               <span>{t.phone} *</span>
 
@@ -324,7 +307,7 @@ function Register() {
               />
             </label>
 
-            {/* НАПРАВЛЕНИЕ */}
+            {/* НАПРАВЛЕНИЕ ОБУЧЕНИЯ */}
             <label style={fieldStyle}>
               <span>{t.direction} *</span>
 
@@ -365,7 +348,7 @@ function Register() {
 
           </div>
 
-          {/* ОШИБКА */}
+          {/* ОШИБКА РЕГИСТРАЦИИ */}
           {error && (
             <p
               role="alert"
@@ -408,7 +391,6 @@ function Register() {
           </p>
 
         </form>
-
       </main>
 
       {/* ПОДВАЛ */}

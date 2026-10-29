@@ -5,12 +5,10 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { translations } from '../locales/translations.js'
+import { api } from '../services/api.js'
 
 import Header from '../components/Header.jsx'
-
 import '../App.css'
-
-const API_URL = 'http://127.0.0.1:8001'
 
 function Home() {
 
@@ -19,7 +17,6 @@ function Home() {
   // ======================================
 
   const { language } = useLanguage()
-
   const { isAuthenticated } = useAuth()
 
   const t = translations[language] || translations.RU
@@ -33,7 +30,7 @@ function Home() {
   const [error, setError] = useState(false)
 
   // ======================================
-  // 3. ЗАГРУЗКА ВОПРОСОВ ИЗ DJANGO
+  // 3. ЗАГРУЗКА ВОПРОСОВ ЧЕРЕЗ API-СЕРВИС
   // ======================================
 
   useEffect(() => {
@@ -44,24 +41,19 @@ function Home() {
       setError(false)
 
       try {
-        const response = await fetch(
-          `${API_URL}/api/questions/`,
-          {
-            signal: controller.signal,
-          }
+        // Запрос к Django через общий api.js
+        const data = await api.getQuestions(
+          controller.signal
         )
 
-        if (!response.ok) {
-          throw new Error(
-            'Ошибка загрузки вопросов'
-          )
-        }
-
-        const data = await response.json()
-
+        // Поддержка обычного списка и пагинации
         const items = Array.isArray(data)
           ? data
-          : data?.results ?? data?.value ?? []
+          : Array.isArray(data?.results)
+            ? data.results
+            : Array.isArray(data?.value)
+              ? data.value
+              : []
 
         if (!controller.signal.aborted) {
           setQuestions(items)
@@ -74,7 +66,9 @@ function Home() {
             err
           )
 
-          setError(true)
+          if (!controller.signal.aborted) {
+            setError(true)
+          }
         }
 
       } finally {
@@ -87,7 +81,6 @@ function Home() {
     loadQuestions()
 
     return () => controller.abort()
-
   }, [])
 
   // ======================================
@@ -226,7 +219,6 @@ function Home() {
                 </span>
 
                 <h3>{t.feature1}</h3>
-
                 <p>{t.feature1Text}</p>
 
               </article>
@@ -244,7 +236,6 @@ function Home() {
                 </span>
 
                 <h3>{t.feature2}</h3>
-
                 <p>{t.feature2Text}</p>
 
               </article>
@@ -262,7 +253,6 @@ function Home() {
                 </span>
 
                 <h3>{t.feature3}</h3>
-
                 <p>{t.feature3Text}</p>
 
               </article>
@@ -307,7 +297,6 @@ function Home() {
                 </span>
 
                 <h3>{t.step1}</h3>
-
                 <p>{t.step1Text}</p>
 
                 <Link
@@ -328,7 +317,6 @@ function Home() {
                 </span>
 
                 <h3>{t.step2}</h3>
-
                 <p>{t.step2Text}</p>
 
                 <Link
@@ -349,7 +337,6 @@ function Home() {
                 </span>
 
                 <h3>{t.step3}</h3>
-
                 <p>{t.step3Text}</p>
 
                 <Link
