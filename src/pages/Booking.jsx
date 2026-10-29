@@ -1,12 +1,144 @@
 
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+
 import { useAuth } from '../context/AuthContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
+import Header from '../components/Header.jsx'
+
 import '../App.css'
 
 const API_URL = 'http://127.0.0.1:8001'
 
-// Получаем дату в формате YYYY-MM-DD
+// ==========================================
+// 1. ПЕРЕВОДЫ СТРАНИЦЫ
+// ==========================================
+
+const translations = {
+  RU: {
+    title: 'Запись на приём',
+    description:
+      'Выбери вопрос, дату и удобное время посещения NOMAD College.',
+    myBookings: 'Мои записи →',
+    loginRequired: 'Необходима авторизация',
+    loginDescription:
+      'Чтобы записаться на приём, сначала войди в свой аккаунт.',
+    login: 'Войти →',
+    student: 'Студент',
+    question: 'Выбери вопрос',
+    chooseQuestion: 'Выбери вопрос',
+    questionFallback: 'Вопрос №',
+    date: 'Дата посещения',
+    loadingQuestions: 'Загружаем вопросы...',
+    loadingSlots: 'Загружаем свободное время...',
+    slotsTitle: 'Свободное время',
+    chooseQuestionFirst: 'Сначала выбери вопрос.',
+    noSlots: 'На выбранную дату свободного времени нет.',
+    duration: 'Продолжительность приёма',
+    minutes: 'минут',
+    confirm: 'Подтвердить запись',
+    submitting: 'Создаём запись...',
+    success: 'Запись успешно создана!',
+    bookingId: 'Номер записи',
+    bookingCode: 'Код записи',
+    viewBookings: 'Посмотреть мои записи →',
+    missingAuth: 'Сначала войди в свой аккаунт.',
+    missingFields:
+      'Выбери вопрос, дату и свободное время.',
+    invalidSlot: 'Выбранное время больше недоступно.',
+    authExpired:
+      'Срок действия авторизации истёк. Войди заново.',
+    questionsError: 'Не удалось загрузить вопросы.',
+    slotsError: 'Не удалось получить свободное время.',
+    bookingError: 'Не удалось создать запись.',
+    invalidResponse: 'Неверный формат ответа сервера.',
+    rights: 'Все права защищены.',
+  },
+
+  KG: {
+    title: 'Кабыл алууга жазылуу',
+    description:
+      'NOMAD College үчүн суроону, күндү жана ыңгайлуу убакытты танда.',
+    myBookings: 'Менин жазылууларым →',
+    loginRequired: 'Аккаунтка кирүү керек',
+    loginDescription:
+      'Кабыл алууга жазылуу үчүн адегенде аккаунтуңа кир.',
+    login: 'Кирүү →',
+    student: 'Студент',
+    question: 'Суроону танда',
+    chooseQuestion: 'Суроону танда',
+    questionFallback: 'Суроо №',
+    date: 'Кабыл алуу күнү',
+    loadingQuestions: 'Суроолор жүктөлүүдө...',
+    loadingSlots: 'Бош убакыттар жүктөлүүдө...',
+    slotsTitle: 'Бош убакыттар',
+    chooseQuestionFirst: 'Адегенде суроону танда.',
+    noSlots: 'Тандалган күнгө бош убакыт жок.',
+    duration: 'Кабыл алуунун узактыгы',
+    minutes: 'мүнөт',
+    confirm: 'Жазылууну ырастоо',
+    submitting: 'Жазылуу түзүлүүдө...',
+    success: 'Жазылуу ийгиликтүү түзүлдү!',
+    bookingId: 'Жазылуунун номери',
+    bookingCode: 'Жазылуу коду',
+    viewBookings: 'Менин жазылууларымды көрүү →',
+    missingAuth: 'Адегенде аккаунтуңа кир.',
+    missingFields: 'Суроону, күндү жана бош убакытты танда.',
+    invalidSlot: 'Тандалган убакыт жеткиликсиз болуп калды.',
+    authExpired:
+      'Авторизациянын мөөнөтү бүттү. Кайра кир.',
+    questionsError: 'Суроолор жүктөлгөн жок.',
+    slotsError: 'Бош убакыттарды алуу мүмкүн болгон жок.',
+    bookingError: 'Жазылуу түзүлгөн жок.',
+    invalidResponse: 'Сервердин жообунун форматы туура эмес.',
+    rights: 'Бардык укуктар корголгон.',
+  },
+
+  EN: {
+    title: 'Book an appointment',
+    description:
+      'Choose a question, date, and convenient appointment time at NOMAD College.',
+    myBookings: 'My bookings →',
+    loginRequired: 'Sign in required',
+    loginDescription:
+      'Please sign in to your account before booking an appointment.',
+    login: 'Sign in →',
+    student: 'Student',
+    question: 'Choose a question',
+    chooseQuestion: 'Select a question',
+    questionFallback: 'Question #',
+    date: 'Appointment date',
+    loadingQuestions: 'Loading questions...',
+    loadingSlots: 'Loading available times...',
+    slotsTitle: 'Available times',
+    chooseQuestionFirst: 'Select a question first.',
+    noSlots: 'No available times for the selected date.',
+    duration: 'Appointment duration',
+    minutes: 'minutes',
+    confirm: 'Confirm booking',
+    submitting: 'Creating booking...',
+    success: 'Booking created successfully!',
+    bookingId: 'Booking number',
+    bookingCode: 'Booking code',
+    viewBookings: 'View my bookings →',
+    missingAuth: 'Please sign in first.',
+    missingFields:
+      'Choose a question, date, and available time.',
+    invalidSlot: 'The selected time is no longer available.',
+    authExpired: 'Your session has expired. Sign in again.',
+    questionsError: 'Could not load questions.',
+    slotsError: 'Could not load available times.',
+    bookingError: 'Could not create the booking.',
+    invalidResponse: 'Invalid server response format.',
+    rights: 'All rights reserved.',
+  },
+}
+
+// ==========================================
+// 2. РАБОТА С ДАТОЙ
+// ==========================================
+
+// Дата в формате YYYY-MM-DD
 function getLocalDate(date) {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -15,7 +147,7 @@ function getLocalDate(date) {
   return `${year}-${month}-${day}`
 }
 
-// По умолчанию выбираем завтрашний день
+// По умолчанию — завтрашний день
 function getTomorrow() {
   const date = new Date()
   date.setDate(date.getDate() + 1)
@@ -23,7 +155,10 @@ function getTomorrow() {
   return getLocalDate(date)
 }
 
-// Читаем сообщения об ошибках Django
+// ==========================================
+// 3. СООБЩЕНИЯ ОБ ОШИБКАХ DJANGO
+// ==========================================
+
 function getError(data, fallback) {
   if (typeof data?.detail === 'string') {
     return data.detail
@@ -46,7 +181,14 @@ function getError(data, fallback) {
   return fallback
 }
 
+// ==========================================
+// 4. ОСНОВНОЙ КОМПОНЕНТ
+// ==========================================
+
 function Booking() {
+  const { language } = useLanguage()
+  const t = translations[language] || translations.RU
+
   const {
     accessToken,
     isAuthenticated,
@@ -58,12 +200,12 @@ function Booking() {
   const [questionsLoading, setQuestionsLoading] = useState(true)
   const [questionsError, setQuestionsError] = useState('')
 
-  // Выбранные данные
+  // Выбор студента
   const [questionId, setQuestionId] = useState('')
   const [date, setDate] = useState(getTomorrow)
   const [time, setTime] = useState('')
 
-  // Свободное время
+  // Доступные интервалы времени
   const [slots, setSlots] = useState([])
   const [duration, setDuration] = useState(null)
   const [slotsLoading, setSlotsLoading] = useState(false)
@@ -74,11 +216,12 @@ function Booking() {
   const [bookingResult, setBookingResult] = useState(null)
   const [bookingError, setBookingError] = useState('')
 
+  // Счётчик обновления времени
   const [refreshCounter, setRefreshCounter] = useState(0)
 
-  // =====================================
-  // 1. ПОЛУЧАЕМ ВОПРОСЫ ИЗ DJANGO
-  // =====================================
+  // ==========================================
+  // 5. ЗАГРУЗКА ВОПРОСОВ ИЗ DJANGO
+  // ==========================================
 
   useEffect(() => {
     const controller = new AbortController()
@@ -96,9 +239,7 @@ function Booking() {
         )
 
         if (!response.ok) {
-          throw new Error(
-            'Не удалось загрузить вопросы.'
-          )
+          throw new Error('Failed to load questions')
         }
 
         const data = await response.json()
@@ -107,11 +248,13 @@ function Booking() {
           ? data
           : data?.results ?? data?.value ?? []
 
-        setQuestions(items)
+        if (!controller.signal.aborted) {
+          setQuestions(items)
+        }
       } catch (error) {
         if (error.name !== 'AbortError') {
-          console.error(error)
-          setQuestionsError(error.message)
+          console.error('Questions error:', error)
+          setQuestionsError('load_failed')
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -125,9 +268,9 @@ function Booking() {
     return () => controller.abort()
   }, [])
 
-  // =====================================
-  // 2. ПОЛУЧАЕМ СВОБОДНОЕ ВРЕМЯ
-  // =====================================
+  // ==========================================
+  // 6. ЗАГРУЗКА СВОБОДНОГО ВРЕМЕНИ
+  // ==========================================
 
   useEffect(() => {
     setSlots([])
@@ -169,23 +312,16 @@ function Booking() {
 
         if (!response.ok) {
           if (response.status === 401) {
-            throw new Error(
-              'Срок действия авторизации истёк. Войди заново.'
-            )
+            throw new Error('AUTH_EXPIRED')
           }
 
           throw new Error(
-            getError(
-              data,
-              'Не удалось получить свободное время.'
-            )
+            getError(data, 'SLOTS_ERROR')
           )
         }
 
         if (!Array.isArray(data?.slots)) {
-          throw new Error(
-            'Неверный формат ответа сервера.'
-          )
+          throw new Error('INVALID_RESPONSE')
         }
 
         if (!controller.signal.aborted) {
@@ -196,7 +332,7 @@ function Booking() {
         }
       } catch (error) {
         if (error.name !== 'AbortError') {
-          console.error(error)
+          console.error('Slots error:', error)
           setSlotsError(error.message)
         }
       } finally {
@@ -216,34 +352,30 @@ function Booking() {
     refreshCounter,
   ])
 
-  // =====================================
-  // 3. СОЗДАЁМ ЗАПИСЬ
-  // =====================================
+  // ==========================================
+  // 7. СОЗДАНИЕ ЗАПИСИ
+  // ==========================================
 
   const handleBooking = async (event) => {
     event.preventDefault()
+
+    if (submitting) return
 
     setBookingError('')
     setBookingResult(null)
 
     if (!accessToken) {
-      setBookingError(
-        'Сначала войди в свой аккаунт.'
-      )
+      setBookingError('MISSING_AUTH')
       return
     }
 
     if (!questionId || !date || !time || !duration) {
-      setBookingError(
-        'Выбери вопрос, дату и свободное время.'
-      )
+      setBookingError('MISSING_FIELDS')
       return
     }
 
     if (!slots.includes(time)) {
-      setBookingError(
-        'Выбранное время больше недоступно.'
-      )
+      setBookingError('INVALID_SLOT')
       return
     }
 
@@ -277,37 +409,43 @@ function Booking() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          throw new Error(
-            'Срок действия авторизации истёк. Войди заново.'
-          )
+          throw new Error('AUTH_EXPIRED')
         }
 
         throw new Error(
-          getError(
-            data,
-            'Не удалось создать запись.'
-          )
+          getError(data, 'BOOKING_ERROR')
         )
       }
 
-      // Запись создана
+      // Сохраняем успешный результат
       setBookingResult(data ?? {})
       setTime('')
 
-      // Обновляем свободные слоты
+      // Перезагружаем доступное время
       setRefreshCounter(
         (previous) => previous + 1
       )
     } catch (error) {
-      console.error(
-        'Ошибка создания записи:',
-        error
-      )
-
+      console.error('Booking error:', error)
       setBookingError(error.message)
     } finally {
       setSubmitting(false)
     }
+  }
+
+  // Перевод ошибок, созданных самим Frontend
+  function translateError(code, fallback) {
+    const errorCodes = {
+      AUTH_EXPIRED: t.authExpired,
+      SLOTS_ERROR: t.slotsError,
+      BOOKING_ERROR: t.bookingError,
+      INVALID_RESPONSE: t.invalidResponse,
+      MISSING_AUTH: t.missingAuth,
+      MISSING_FIELDS: t.missingFields,
+      INVALID_SLOT: t.invalidSlot,
+    }
+
+    return errorCodes[code] || fallback || code
   }
 
   const fieldStyle = {
@@ -315,52 +453,16 @@ function Booking() {
     gap: '8px',
   }
 
+  // ==========================================
+  // 8. ИНТЕРФЕЙС СТРАНИЦЫ
+  // ==========================================
+
   return (
     <div className="site-wrapper">
 
-      {/* ШАПКА САЙТА */}
-      <header className="site-header">
+      {/* ОБЩАЯ ШАПКА */}
+      <Header />
 
-        <Link
-          to="/"
-          className="brand"
-          aria-label="Online Record"
-        >
-          <img
-            className="college-logo"
-            src="/nomad.webp"
-            alt="Nomad College"
-          />
-
-          <span className="brand-text">
-            <strong>ONLINE</strong>
-            <span>RECORD</span>
-          </span>
-        </Link>
-
-        <div className="header-actions">
-
-          {/* ДОПОЛНИТЕЛЬНЫЙ ПЕРЕХОД */}
-          {isAuthenticated && (
-            <Link
-              to="/my-bookings"
-              className="header-button"
-            >
-              Мои записи
-            </Link>
-          )}
-
-          <Link
-            to="/"
-            className="header-button"
-          >
-            На главную
-          </Link>
-
-        </div>
-      </header>
-
-      {/* ОСНОВНАЯ СТРАНИЦА */}
       <main
         className="section-container"
         style={{
@@ -375,19 +477,11 @@ function Booking() {
             ONLINE RECORD
           </span>
 
-          <h2>Запись на приём</h2>
-
-          <p>
-            Выбери вопрос, дату и удобное время
-            посещения NOMAD College.
-          </p>
+          <h2>{t.title}</h2>
+          <p>{t.description}</p>
         </div>
 
-        {/* =====================================
-            КНОПКА "МОИ ЗАПИСИ"
-            НАХОДИТСЯ ПОД ЗАГОЛОВКОМ
-           ===================================== */}
-
+        {/* МОИ ЗАПИСИ */}
         {isAuthenticated && (
           <div
             style={{
@@ -399,7 +493,7 @@ function Booking() {
               to="/my-bookings"
               className="button button-secondary"
             >
-              Мои записи →
+              {t.myBookings}
             </Link>
           </div>
         )}
@@ -412,43 +506,30 @@ function Booking() {
           }}
         >
 
-          {/* ЕСЛИ ПОЛЬЗОВАТЕЛЬ НЕ ВОШЁЛ */}
+          {/* НЕ АВТОРИЗОВАН */}
           {!isAuthenticated ? (
-
             <div>
-              <h3>
-                Необходима авторизация
-              </h3>
+              <h3>{t.loginRequired}</h3>
 
-              <p
-                style={{
-                  margin: '18px 0 25px',
-                }}
-              >
-                Чтобы записаться на приём,
-                сначала войди в свой аккаунт.
+              <p style={{ margin: '18px 0 25px' }}>
+                {t.loginDescription}
               </p>
 
               <Link
                 to="/login"
                 className="button button-primary"
               >
-                Войти →
+                {t.login}
               </Link>
             </div>
-
           ) : (
 
             /* ФОРМА ЗАПИСИ */
             <form onSubmit={handleBooking}>
 
-              {/* ИНФОРМАЦИЯ О СТУДЕНТЕ */}
-              <p
-                style={{
-                  marginBottom: '25px',
-                }}
-              >
-                Студент:{' '}
+              {/* СТУДЕНТ */}
+              <p style={{ marginBottom: '25px' }}>
+                {t.student}:{' '}
                 <strong>{currentUser}</strong>
               </p>
 
@@ -462,27 +543,22 @@ function Booking() {
                 }}
               >
 
-                {/* ВЫБОР ВОПРОСА */}
+                {/* ВОПРОС */}
                 <label style={fieldStyle}>
-                  <span>
-                    Выбери вопрос *
-                  </span>
+                  <span>{t.question} *</span>
 
                   <select
                     value={questionId}
                     onChange={(event) => {
-                      setQuestionId(
-                        event.target.value
-                      )
+                      setQuestionId(event.target.value)
                       setBookingError('')
                       setBookingResult(null)
                     }}
                     required
                     disabled={questionsLoading}
                   >
-
                     <option value="">
-                      Выбери вопрос
+                      {t.chooseQuestion}
                     </option>
 
                     {questions.map((question) => (
@@ -492,17 +568,15 @@ function Booking() {
                       >
                         {question.text ??
                           question.title ??
-                          `Вопрос №${question.id}`}
+                          `${t.questionFallback}${question.id}`}
                       </option>
                     ))}
                   </select>
                 </label>
 
-                {/* ВЫБОР ДАТЫ */}
+                {/* ДАТА */}
                 <label style={fieldStyle}>
-                  <span>
-                    Дата посещения *
-                  </span>
+                  <span>{t.date} *</span>
 
                   <input
                     type="date"
@@ -519,14 +593,10 @@ function Booking() {
 
               </div>
 
-              {/* ЗАГРУЗКА ВОПРОСОВ */}
+              {/* СОСТОЯНИЕ ЗАГРУЗКИ ВОПРОСОВ */}
               {questionsLoading && (
-                <p
-                  style={{
-                    marginTop: '16px',
-                  }}
-                >
-                  Загружаем вопросы...
+                <p style={{ marginTop: '16px' }}>
+                  {t.loadingQuestions}
                 </p>
               )}
 
@@ -538,38 +608,23 @@ function Booking() {
                     marginTop: '16px',
                   }}
                 >
-                  {questionsError}
+                  {t.questionsError}
                 </p>
               )}
 
               {/* СВОБОДНОЕ ВРЕМЯ */}
-              <div
-                style={{
-                  marginTop: '30px',
-                }}
-              >
-
-                <h3>
-                  Свободное время
-                </h3>
+              <div style={{ marginTop: '30px' }}>
+                <h3>{t.slotsTitle}</h3>
 
                 {!questionId && (
-                  <p
-                    style={{
-                      marginTop: '12px',
-                    }}
-                  >
-                    Сначала выбери вопрос.
+                  <p style={{ marginTop: '12px' }}>
+                    {t.chooseQuestionFirst}
                   </p>
                 )}
 
                 {slotsLoading && (
-                  <p
-                    style={{
-                      marginTop: '12px',
-                    }}
-                  >
-                    Загружаем свободное время...
+                  <p style={{ marginTop: '12px' }}>
+                    {t.loadingSlots}
                   </p>
                 )}
 
@@ -581,7 +636,7 @@ function Booking() {
                       marginTop: '12px',
                     }}
                   >
-                    {slotsError}
+                    {translateError(slotsError)}
                   </p>
                 )}
 
@@ -589,25 +644,16 @@ function Booking() {
                   !slotsError &&
                   questionId &&
                   slots.length === 0 && (
-                    <p
-                      style={{
-                        marginTop: '12px',
-                      }}
-                    >
-                      На выбранную дату
-                      свободного времени нет.
+                    <p style={{ marginTop: '12px' }}>
+                      {t.noSlots}
                     </p>
                   )}
 
                 {duration && (
-                  <p
-                    style={{
-                      marginTop: '12px',
-                    }}
-                  >
-                    Продолжительность приёма:{' '}
+                  <p style={{ marginTop: '12px' }}>
+                    {t.duration}:{' '}
                     <strong>
-                      {duration} минут
+                      {duration} {t.minutes}
                     </strong>
                   </p>
                 )}
@@ -665,9 +711,10 @@ function Booking() {
                   style={{
                     color: '#d51f32',
                     marginTop: '22px',
+                    overflowWrap: 'anywhere',
                   }}
                 >
-                  {bookingError}
+                  {translateError(bookingError)}
                 </p>
               )}
 
@@ -683,13 +730,11 @@ function Booking() {
                     marginTop: '25px',
                   }}
                 >
-                  <h3>
-                    Запись успешно создана!
-                  </h3>
+                  <h3>{t.success}</h3>
 
                   {bookingResult.id != null && (
                     <p>
-                      Номер записи:{' '}
+                      {t.bookingId}:{' '}
                       <strong>
                         {bookingResult.id}
                       </strong>
@@ -698,30 +743,25 @@ function Booking() {
 
                   {bookingResult.code && (
                     <p>
-                      Код записи:{' '}
+                      {t.bookingCode}:{' '}
                       <strong>
                         {bookingResult.code}
                       </strong>
                     </p>
                   )}
 
-                  {/* ПЕРЕХОД К МОИМ ЗАПИСЯМ */}
-                  <div
-                    style={{
-                      marginTop: '20px',
-                    }}
-                  >
+                  <div style={{ marginTop: '20px' }}>
                     <Link
                       to="/my-bookings"
                       className="button button-primary"
                     >
-                      Посмотреть мои записи →
+                      {t.viewBookings}
                     </Link>
                   </div>
                 </div>
               )}
 
-              {/* ПОДТВЕРЖДЕНИЕ */}
+              {/* КНОПКА ПОДТВЕРЖДЕНИЯ */}
               <button
                 type="submit"
                 className="button button-primary"
@@ -741,8 +781,8 @@ function Booking() {
                 }}
               >
                 {submitting
-                  ? 'Создаём запись...'
-                  : 'Подтвердить запись'}
+                  ? t.submitting
+                  : t.confirm}
               </button>
 
             </form>
@@ -756,14 +796,12 @@ function Booking() {
           to="/"
           className="footer-brand"
         >
-          <span>
-            ONLINE RECORD
-          </span>
+          <span>ONLINE RECORD</span>
         </Link>
 
         <p>
           © {new Date().getFullYear()} Online Record.
-          Все права защищены.
+          {' '}{t.rights}
         </p>
 
         <span className="footer-year">

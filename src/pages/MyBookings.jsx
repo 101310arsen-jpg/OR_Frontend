@@ -1,10 +1,161 @@
 
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+
 import { useAuth } from '../context/AuthContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
+import Header from '../components/Header.jsx'
+
 import '../App.css'
 
 const API_URL = 'http://127.0.0.1:8001'
+
+// ==========================================
+// 1. ПЕРЕВОДЫ СТРАНИЦЫ
+// ==========================================
+
+const translations = {
+  RU: {
+    title: 'Мои записи',
+    description:
+      'Просматривай свои записи и управляй посещениями NOMAD College.',
+    loginRequired: 'Необходима авторизация',
+    loginDescription:
+      'Чтобы посмотреть свои записи, сначала войди в аккаунт.',
+    login: 'Войти →',
+    student: 'Студент',
+    refresh: 'Обновить',
+    loading: 'Загружаем твои записи...',
+    noBookings: 'У тебя пока нет записей',
+    noBookingsDescription:
+      'Выбери вопрос, дату и удобное время, чтобы записаться на приём.',
+    book: 'Записаться →',
+    bookAgain: 'Записаться ещё →',
+    bookingNumber: 'Запись №',
+    appointment: 'Приём',
+    date: 'Дата посещения',
+    time: 'Время приёма',
+    duration: 'Продолжительность',
+    minutes: 'минут',
+    code: 'Код записи',
+    question: 'Вопрос',
+    cancel: 'Отменить запись',
+    cancelling: 'Отменяем запись...',
+    cancelConfirm:
+      'Ты действительно хочешь отменить запись №',
+    cancelSuccessStart: 'Запись №',
+    cancelSuccessEnd: 'успешно отменена.',
+    loadError: 'Не удалось загрузить записи.',
+    cancelError: 'Не удалось отменить запись.',
+    unknownError: 'Произошла ошибка.',
+    authExpired:
+      'Срок действия авторизации истёк. Войди заново.',
+    rights: 'Все права защищены.',
+    statuses: {
+      active: 'Активна',
+      booked: 'Забронирована',
+      cancelled: 'Отменена',
+      done: 'Завершена',
+      unknown: 'Неизвестно',
+    },
+  },
+
+  KG: {
+    title: 'Менин жазылууларым',
+    description:
+      'NOMAD College кабыл алуусуна жазылууларыңды көр жана башкар.',
+    loginRequired: 'Аккаунтка кирүү керек',
+    loginDescription:
+      'Жазылууларыңды көрүү үчүн адегенде аккаунтуңа кир.',
+    login: 'Кирүү →',
+    student: 'Студент',
+    refresh: 'Жаңыртуу',
+    loading: 'Жазылууларың жүктөлүүдө...',
+    noBookings: 'Азырынча жазылууларың жок',
+    noBookingsDescription:
+      'Кабыл алууга жазылуу үчүн суроону, күндү жана ыңгайлуу убакытты танда.',
+    book: 'Жазылуу →',
+    bookAgain: 'Кайра жазылуу →',
+    bookingNumber: 'Жазылуу №',
+    appointment: 'Кабыл алуу',
+    date: 'Кабыл алуу күнү',
+    time: 'Кабыл алуу убактысы',
+    duration: 'Узактыгы',
+    minutes: 'мүнөт',
+    code: 'Жазылуу коду',
+    question: 'Суроо',
+    cancel: 'Жазылууну жокко чыгаруу',
+    cancelling: 'Жазылуу жокко чыгарылууда...',
+    cancelConfirm:
+      'Чын эле №',
+    cancelConfirmEnd:
+      'жазылууну жокко чыгаргың келеби?',
+    cancelSuccessStart: '№',
+    cancelSuccessEnd: 'жазылуу жокко чыгарылды.',
+    loadError: 'Жазылуулар жүктөлгөн жок.',
+    cancelError: 'Жазылууну жокко чыгаруу мүмкүн болгон жок.',
+    unknownError: 'Ката кетти.',
+    authExpired:
+      'Авторизациянын мөөнөтү бүттү. Кайра кир.',
+    rights: 'Бардык укуктар корголгон.',
+    statuses: {
+      active: 'Активдүү',
+      booked: 'Брондолгон',
+      cancelled: 'Жокко чыгарылган',
+      done: 'Аяктаган',
+      unknown: 'Белгисиз',
+    },
+  },
+
+  EN: {
+    title: 'My bookings',
+    description:
+      'View your appointments and manage your visits to NOMAD College.',
+    loginRequired: 'Sign in required',
+    loginDescription:
+      'Please sign in to see your bookings.',
+    login: 'Sign in →',
+    student: 'Student',
+    refresh: 'Refresh',
+    loading: 'Loading your bookings...',
+    noBookings: 'You have no bookings yet',
+    noBookingsDescription:
+      'Choose a question, date, and convenient time to book an appointment.',
+    book: 'Book now →',
+    bookAgain: 'Book another appointment →',
+    bookingNumber: 'Booking #',
+    appointment: 'Appointment',
+    date: 'Appointment date',
+    time: 'Appointment time',
+    duration: 'Duration',
+    minutes: 'minutes',
+    code: 'Booking code',
+    question: 'Question',
+    cancel: 'Cancel booking',
+    cancelling: 'Cancelling booking...',
+    cancelConfirm:
+      'Are you sure you want to cancel booking #',
+    cancelSuccessStart: 'Booking #',
+    cancelSuccessEnd: 'has been cancelled successfully.',
+    loadError: 'Could not load your bookings.',
+    cancelError: 'Could not cancel the booking.',
+    unknownError: 'An error occurred.',
+    authExpired:
+      'Your session has expired. Please sign in again.',
+    rights: 'All rights reserved.',
+    statuses: {
+      active: 'Active',
+      booked: 'Booked',
+      cancelled: 'Cancelled',
+      done: 'Completed',
+      unknown: 'Unknown',
+    },
+  },
+}
+
+// ==========================================
+// 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ==========================================
 
 function getErrorMessage(data, fallback) {
   if (typeof data?.detail === 'string') {
@@ -12,13 +163,15 @@ function getErrorMessage(data, fallback) {
   }
 
   if (data && typeof data === 'object') {
-    const messages = Object.entries(data).map(([key, value]) => {
-      const text = Array.isArray(value)
-        ? value.join(', ')
-        : String(value)
+    const messages = Object.entries(data).map(
+      ([key, value]) => {
+        const text = Array.isArray(value)
+          ? value.join(', ')
+          : String(value)
 
-      return `${key}: ${text}`
-    })
+        return `${key}: ${text}`
+      }
+    )
 
     return messages.join(' | ') || fallback
   }
@@ -26,7 +179,8 @@ function getErrorMessage(data, fallback) {
   return fallback
 }
 
-function formatDate(value) {
+// Форматируем дату в зависимости от языка
+function formatDate(value, language) {
   if (!value) return '—'
 
   const date = new Date(`${value}T00:00:00`)
@@ -35,25 +189,39 @@ function formatDate(value) {
     return value
   }
 
-  return date.toLocaleDateString('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
-}
-
-function getStatusLabel(status) {
-  const statuses = {
-    active: 'Активна',
-    booked: 'Забронирована',
-    cancelled: 'Отменена',
-    done: 'Завершена',
+  const locales = {
+    RU: 'ru-RU',
+    KG: 'ky-KG',
+    EN: 'en-US',
   }
 
-  return statuses[status] || status || 'Неизвестно'
+  return date.toLocaleDateString(
+    locales[language] || 'ru-RU',
+    {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }
+  )
 }
 
+// Переводим статус записи
+function getStatusLabel(status, t) {
+  return (
+    t.statuses[status] ||
+    status ||
+    t.statuses.unknown
+  )
+}
+
+// ==========================================
+// 3. ОСНОВНОЙ КОМПОНЕНТ
+// ==========================================
+
 function MyBookings() {
+  const { language } = useLanguage()
+  const t = translations[language] || translations.RU
+
   const {
     accessToken,
     isAuthenticated,
@@ -67,7 +235,10 @@ function MyBookings() {
   const [cancellingId, setCancellingId] = useState(null)
   const [refreshCounter, setRefreshCounter] = useState(0)
 
-  // Загружаем записи пользователя
+  // ==========================================
+  // 4. ЗАГРУЖАЕМ ЗАПИСИ ИЗ DJANGO
+  // ==========================================
+
   useEffect(() => {
     if (!accessToken) {
       setBookings([])
@@ -94,24 +265,21 @@ function MyBookings() {
           }
         )
 
-        const data = await response.json().catch(() => null)
+        const data = await response.json().catch(
+          () => null
+        )
 
         if (!response.ok) {
           if (response.status === 401) {
-            throw new Error(
-              'Срок действия авторизации истёк. Войди заново.'
-            )
+            throw new Error('AUTH_EXPIRED')
           }
 
           throw new Error(
-            getErrorMessage(
-              data,
-              'Не удалось загрузить записи.'
-            )
+            getErrorMessage(data, 'LOAD_ERROR')
           )
         }
 
-        // Поддержка списка и пагинированного ответа
+        // Поддерживаем список и пагинацию
         const items = Array.isArray(data)
           ? data
           : Array.isArray(data?.results)
@@ -125,8 +293,12 @@ function MyBookings() {
         }
       } catch (err) {
         if (err.name !== 'AbortError') {
-          console.error('Ошибка получения записей:', err)
-          setError(err.message || 'Произошла ошибка.')
+          console.error(
+            'Ошибка загрузки записей:',
+            err
+          )
+
+          setError(err.message || 'LOAD_ERROR')
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -140,13 +312,21 @@ function MyBookings() {
     return () => controller.abort()
   }, [accessToken, refreshCounter])
 
-  // Отмена записи
-  const handleCancel = async (booking) => {
-    if (!booking?.id || !accessToken) return
+  // ==========================================
+  // 5. ОТМЕНА ЗАПИСИ
+  // ==========================================
 
-    const confirmed = window.confirm(
-      `Ты действительно хочешь отменить запись №${booking.id}?`
-    )
+  const handleCancel = async (booking) => {
+    if (!booking?.id || !accessToken || cancellingId !== null) {
+      return
+    }
+
+    const confirmationText =
+      language === 'KG'
+        ? `${t.cancelConfirm}${booking.id} ${t.cancelConfirmEnd}`
+        : `${t.cancelConfirm}${booking.id}?`
+
+    const confirmed = window.confirm(confirmationText)
 
     if (!confirmed) return
 
@@ -166,63 +346,70 @@ function MyBookings() {
         }
       )
 
-      const data = await response.json().catch(() => null)
+      const data = await response.json().catch(
+        () => null
+      )
 
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('AUTH_EXPIRED')
+        }
+
         throw new Error(
-          getErrorMessage(data, 'Не удалось отменить запись.')
+          getErrorMessage(data, 'CANCEL_ERROR')
         )
       }
 
-      setSuccessMessage(
-        `Запись №${booking.id} успешно отменена.`
+      setSuccessMessage('CANCEL_SUCCESS')
+
+      // Загружаем актуальные записи
+      setRefreshCounter(
+        (previous) => previous + 1
+      )
+    } catch (err) {
+      console.error(
+        'Ошибка отмены записи:',
+        err
       )
 
-      // Получаем обновлённый список из Django
-      setRefreshCounter((previous) => previous + 1)
-    } catch (err) {
-      console.error('Ошибка отмены записи:', err)
-      setError(err.message || 'Не удалось отменить запись.')
+      setError(err.message || 'CANCEL_ERROR')
     } finally {
       setCancellingId(null)
     }
   }
 
+  // ==========================================
+  // 6. ОБНОВЛЯЕМ СПИСОК
+  // ==========================================
+
   const reloadBookings = () => {
     setSuccessMessage('')
-    setRefreshCounter((previous) => previous + 1)
+    setRefreshCounter(
+      (previous) => previous + 1
+    )
   }
+
+  // Перевод ошибок интерфейса
+  const translateError = (code) => {
+    const errors = {
+      AUTH_EXPIRED: t.authExpired,
+      LOAD_ERROR: t.loadError,
+      CANCEL_ERROR: t.cancelError,
+    }
+
+    return errors[code] || code || t.unknownError
+  }
+
+  // ==========================================
+  // 7. ИНТЕРФЕЙС
+  // ==========================================
 
   return (
     <div className="site-wrapper">
 
-      {/* ШАПКА */}
-      <header className="site-header">
-        <Link
-          to="/"
-          className="brand"
-          aria-label="Online Record"
-        >
-          <img
-            className="college-logo"
-            src="/nomad.webp"
-            alt="Nomad College"
-          />
+      {/* ОБЩАЯ ШАПКА */}
+      <Header />
 
-          <span className="brand-text">
-            <strong>ONLINE</strong>
-            <span>RECORD</span>
-          </span>
-        </Link>
-
-        <div className="header-actions">
-          <Link to="/booking" className="header-button">
-            Записаться
-          </Link>
-        </div>
-      </header>
-
-      {/* ОСНОВНАЯ СТРАНИЦА */}
       <main
         className="section-container"
         style={{
@@ -230,17 +417,15 @@ function MyBookings() {
           paddingBottom: '100px',
         }}
       >
+
+        {/* ЗАГОЛОВОК */}
         <div className="section-heading">
           <span className="section-kicker">
             ONLINE RECORD
           </span>
 
-          <h2>Мои записи</h2>
-
-          <p>
-            Просматривай свои записи и управляй
-            посещениями NOMAD College.
-          </p>
+          <h2>{t.title}</h2>
+          <p>{t.description}</p>
         </div>
 
         {/* НЕ АВТОРИЗОВАН */}
@@ -252,24 +437,28 @@ function MyBookings() {
               margin: '0 auto',
             }}
           >
-            <h3>Необходима авторизация</h3>
+            <h3>{t.loginRequired}</h3>
 
             <p style={{ margin: '18px 0 25px' }}>
-              Чтобы посмотреть свои записи,
-              сначала войди в аккаунт.
+              {t.loginDescription}
             </p>
 
             <Link
               to="/login"
               className="button button-primary"
             >
-              Войти →
+              {t.login}
             </Link>
           </div>
         ) : (
-          <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          <div
+            style={{
+              maxWidth: '900px',
+              margin: '0 auto',
+            }}
+          >
 
-            {/* ПАНЕЛЬ ПОЛЬЗОВАТЕЛЯ */}
+            {/* ПАНЕЛЬ СТУДЕНТА */}
             <div
               className="feature-card"
               style={{
@@ -286,7 +475,7 @@ function MyBookings() {
                 }}
               >
                 <div>
-                  <p>Студент</p>
+                  <p>{t.student}</p>
 
                   <h3 style={{ marginTop: '5px' }}>
                     {currentUser}
@@ -298,9 +487,11 @@ function MyBookings() {
                   onClick={reloadBookings}
                   disabled={loading}
                   className="button button-secondary"
-                  style={{ cursor: 'pointer' }}
+                  style={{
+                    cursor: 'pointer',
+                  }}
                 >
-                  Обновить
+                  {t.refresh}
                 </button>
               </div>
             </div>
@@ -308,11 +499,11 @@ function MyBookings() {
             {/* ЗАГРУЗКА */}
             {loading && (
               <p style={{ textAlign: 'center' }}>
-                Загружаем твои записи...
+                {t.loading}
               </p>
             )}
 
-            {/* ОШИБКА */}
+            {/* ОШИБКИ */}
             {error && (
               <div
                 role="alert"
@@ -325,7 +516,7 @@ function MyBookings() {
                   overflowWrap: 'anywhere',
                 }}
               >
-                {error}
+                {translateError(error)}
               </div>
             )}
 
@@ -341,33 +532,42 @@ function MyBookings() {
                   borderRadius: '10px',
                 }}
               >
-                {successMessage}
+                {t.cancelSuccessStart}
+                {bookings.find(
+                  (booking) => booking.id === cancellingId
+                )?.id || ''}
+                {successMessage === 'CANCEL_SUCCESS'
+                  ? t.cancelSuccessEnd
+                  : successMessage}
               </div>
             )}
 
-            {/* ПУСТОЙ СПИСОК */}
-            {!loading && !error && bookings.length === 0 && (
-              <div
-                className="feature-card"
-                style={{ textAlign: 'center' }}
-              >
-                <h3>У тебя пока нет записей</h3>
-
-                <p style={{ margin: '16px 0 25px' }}>
-                  Выбери вопрос, дату и удобное время,
-                  чтобы записаться на приём.
-                </p>
-
-                <Link
-                  to="/booking"
-                  className="button button-primary"
+            {/* СПИСОК ПУСТ */}
+            {!loading &&
+              !error &&
+              bookings.length === 0 && (
+                <div
+                  className="feature-card"
+                  style={{
+                    textAlign: 'center',
+                  }}
                 >
-                  Записаться →
-                </Link>
-              </div>
-            )}
+                  <h3>{t.noBookings}</h3>
 
-            {/* СПИСОК ЗАПИСЕЙ */}
+                  <p style={{ margin: '16px 0 25px' }}>
+                    {t.noBookingsDescription}
+                  </p>
+
+                  <Link
+                    to="/booking"
+                    className="button button-primary"
+                  >
+                    {t.book}
+                  </Link>
+                </div>
+              )}
+
+            {/* ВСЕ ЗАПИСИ СТУДЕНТА */}
             {!loading && bookings.length > 0 && (
               <div
                 style={{
@@ -376,9 +576,9 @@ function MyBookings() {
                 }}
               >
                 {bookings.map((booking) => {
+                  // Backend разрешает отмену активных записей
                   const canCancel =
-                    booking.status === 'active' ||
-                    booking.status === 'booked'
+                    booking.status === 'active'
 
                   const isCancelling =
                     cancellingId === booking.id
@@ -388,6 +588,7 @@ function MyBookings() {
                       className="feature-card"
                       key={booking.id}
                     >
+
                       {/* НАЗВАНИЕ И СТАТУС */}
                       <div
                         style={{
@@ -401,11 +602,12 @@ function MyBookings() {
                       >
                         <div>
                           <span className="section-kicker">
-                            ЗАПИСЬ №{booking.id}
+                            {t.bookingNumber}
+                            {booking.id}
                           </span>
 
                           <h3 style={{ marginTop: '8px' }}>
-                            {booking.official || 'Приём'}
+                            {booking.official || t.appointment}
                           </h3>
                         </div>
 
@@ -425,11 +627,14 @@ function MyBookings() {
                                 : '#167a3f',
                           }}
                         >
-                          {getStatusLabel(booking.status)}
+                          {getStatusLabel(
+                            booking.status,
+                            t
+                          )}
                         </span>
                       </div>
 
-                      {/* ИНФОРМАЦИЯ О ЗАПИСИ */}
+                      {/* ДЕТАЛИ ЗАПИСИ */}
                       <div
                         style={{
                           display: 'grid',
@@ -438,15 +643,21 @@ function MyBookings() {
                           gap: '20px',
                         }}
                       >
+
+                        {/* ДАТА */}
                         <div>
-                          <p>Дата посещения</p>
+                          <p>{t.date}</p>
                           <strong>
-                            {formatDate(booking.date)}
+                            {formatDate(
+                              booking.date,
+                              language
+                            )}
                           </strong>
                         </div>
 
+                        {/* ВРЕМЯ */}
                         <div>
-                          <p>Время приёма</p>
+                          <p>{t.time}</p>
                           <strong>
                             {booking.time || '—'}
                             {booking.end_time
@@ -455,15 +666,18 @@ function MyBookings() {
                           </strong>
                         </div>
 
+                        {/* ПРОДОЛЖИТЕЛЬНОСТЬ */}
                         <div>
-                          <p>Продолжительность</p>
+                          <p>{t.duration}</p>
                           <strong>
-                            {booking.duration ?? '—'} минут
+                            {booking.duration ?? '—'}{' '}
+                            {t.minutes}
                           </strong>
                         </div>
 
+                        {/* КОД */}
                         <div>
-                          <p>Код записи</p>
+                          <p>{t.code}</p>
                           <strong
                             style={{
                               color: '#d51f32',
@@ -478,7 +692,7 @@ function MyBookings() {
                       {/* ВОПРОС */}
                       {booking.question_text && (
                         <div style={{ marginTop: '24px' }}>
-                          <p>Вопрос</p>
+                          <p>{t.question}</p>
 
                           <strong>
                             {booking.question_text}
@@ -486,13 +700,15 @@ function MyBookings() {
                         </div>
                       )}
 
-                      {/* КНОПКА ОТМЕНЫ */}
+                      {/* ОТМЕНА */}
                       {canCancel && (
                         <div style={{ marginTop: '28px' }}>
                           <button
                             type="button"
-                            onClick={() => handleCancel(booking)}
-                            disabled={isCancelling}
+                            onClick={() =>
+                              handleCancel(booking)
+                            }
+                            disabled={cancellingId !== null}
                             style={{
                               padding: '13px 22px',
                               border: '1px solid #d51f32',
@@ -507,8 +723,8 @@ function MyBookings() {
                             }}
                           >
                             {isCancelling
-                              ? 'Отменяем запись...'
-                              : 'Отменить запись'}
+                              ? t.cancelling
+                              : t.cancel}
                           </button>
                         </div>
                       )}
@@ -518,7 +734,7 @@ function MyBookings() {
               </div>
             )}
 
-            {/* НОВАЯ ЗАПИСЬ */}
+            {/* СОЗДАТЬ ДРУГУЮ ЗАПИСЬ */}
             {!loading && bookings.length > 0 && (
               <div
                 style={{
@@ -530,7 +746,7 @@ function MyBookings() {
                   to="/booking"
                   className="button button-primary"
                 >
-                  Записаться ещё →
+                  {t.bookAgain}
                 </Link>
               </div>
             )}
@@ -541,13 +757,16 @@ function MyBookings() {
 
       {/* ПОДВАЛ */}
       <footer className="site-footer">
-        <Link to="/" className="footer-brand">
+        <Link
+          to="/"
+          className="footer-brand"
+        >
           <span>ONLINE RECORD</span>
         </Link>
 
         <p>
           © {new Date().getFullYear()} Online Record.
-          Все права защищены.
+          {' '}{t.rights}
         </p>
 
         <span className="footer-year">

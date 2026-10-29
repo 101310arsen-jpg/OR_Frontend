@@ -2,12 +2,79 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
+import Header from '../components/Header.jsx'
 import '../App.css'
 
 const API_URL = 'http://127.0.0.1:8001'
 
+const translations = {
+  RU: {
+    title: 'Вход в аккаунт',
+    description: 'Войди в аккаунт, чтобы записаться на приём в NOMAD College.',
+    username: 'Логин',
+    password: 'Пароль',
+    usernamePlaceholder: 'Введите логин',
+    passwordPlaceholder: 'Введите пароль',
+    login: 'Войти',
+    loading: 'Выполняется вход...',
+    noAccount: 'Нет аккаунта?',
+    register: 'Зарегистрироваться',
+    success: 'Вход выполнен успешно!',
+    loggedInAs: 'Ты вошёл как:',
+    goToBooking: 'Перейти к записи →',
+    logout: 'Выйти',
+    loginError: 'Не удалось войти. Проверь логин и пароль.',
+    tokenError: 'Сервер не вернул access-токен.',
+    unknownError: 'Произошла ошибка при входе.',
+    rights: 'Все права защищены.',
+  },
+  KG: {
+    title: 'Аккаунтка кирүү',
+    description: 'NOMAD College кабыл алуусуна жазылуу үчүн аккаунтуңа кир.',
+    username: 'Логин',
+    password: 'Сырсөз',
+    usernamePlaceholder: 'Логинди киргиз',
+    passwordPlaceholder: 'Сырсөздү киргиз',
+    login: 'Кирүү',
+    loading: 'Кирүү аткарылууда...',
+    noAccount: 'Аккаунтуң жокпу?',
+    register: 'Катталуу',
+    success: 'Ийгиликтүү кирдиң!',
+    loggedInAs: 'Сенин аккаунтуң:',
+    goToBooking: 'Жазылууга өтүү →',
+    logout: 'Чыгуу',
+    loginError: 'Кирүү мүмкүн болгон жок. Логинди жана сырсөздү текшер.',
+    tokenError: 'Сервер access-токен кайтарган жок.',
+    unknownError: 'Кирүү учурунда ката кетти.',
+    rights: 'Бардык укуктар корголгон.',
+  },
+  EN: {
+    title: 'Sign in to your account',
+    description: 'Sign in to book an appointment at NOMAD College.',
+    username: 'Username',
+    password: 'Password',
+    usernamePlaceholder: 'Enter username',
+    passwordPlaceholder: 'Enter password',
+    login: 'Sign in',
+    loading: 'Signing in...',
+    noAccount: "Don't have an account?",
+    register: 'Register',
+    success: 'Signed in successfully!',
+    loggedInAs: 'Signed in as:',
+    goToBooking: 'Go to booking →',
+    logout: 'Log out',
+    loginError: 'Unable to sign in. Check your username and password.',
+    tokenError: 'The server did not return an access token.',
+    unknownError: 'An error occurred while signing in.',
+    rights: 'All rights reserved.',
+  },
+}
+
 function Login() {
   const navigate = useNavigate()
+  const { language } = useLanguage()
+  const t = translations[language] || translations.RU
 
   const {
     login,
@@ -24,7 +91,6 @@ function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Обновление полей формы
   const handleChange = (event) => {
     const { name, value } = event.target
 
@@ -36,10 +102,8 @@ function Login() {
     setError('')
   }
 
-  // Авторизация через Django API
   const handleSubmit = async (event) => {
     event.preventDefault()
-
     setLoading(true)
     setError('')
 
@@ -62,37 +126,28 @@ function Login() {
       const data = await response.json().catch(() => null)
 
       if (!response.ok) {
-        throw new Error(
-          typeof data?.detail === 'string'
-            ? data.detail
-            : 'Не удалось войти. Проверь логин и пароль.'
-        )
+        if (typeof data?.detail === 'string') {
+          throw new Error(data.detail)
+        }
+
+        throw new Error(t.loginError)
       }
 
       if (!data?.access) {
-        throw new Error(
-          'Сервер не вернул access-токен.'
-        )
+        throw new Error(t.tokenError)
       }
 
-      // Сохраняем авторизацию в AuthContext
       login(data.access, form.username.trim())
 
-      // Очищаем поля после входа
       setForm({
         username: '',
         password: '',
       })
 
-      // Перенаправляем на страницу записи
       navigate('/booking')
-
     } catch (err) {
       console.error('Ошибка авторизации:', err)
-
-      setError(
-        err.message || 'Произошла ошибка при входе.'
-      )
+      setError(err.message || t.unknownError)
     } finally {
       setLoading(false)
     }
@@ -100,38 +155,8 @@ function Login() {
 
   return (
     <div className="site-wrapper">
+      <Header />
 
-      {/* ШАПКА САЙТА */}
-      <header className="site-header">
-
-        <Link
-          to="/"
-          className="brand"
-          aria-label="Online Record"
-        >
-          <img
-            className="college-logo"
-            src="/nomad.webp"
-            alt="Nomad College"
-          />
-
-          <span className="brand-text">
-            <strong>ONLINE</strong>
-            <span>RECORD</span>
-          </span>
-        </Link>
-
-        <div className="header-actions">
-          <Link
-            to="/"
-            className="header-button"
-          >
-            На главную
-          </Link>
-        </div>
-      </header>
-
-      {/* ОСНОВНОЕ СОДЕРЖИМОЕ */}
       <main
         className="section-container"
         style={{
@@ -139,18 +164,13 @@ function Login() {
           paddingBottom: '100px',
         }}
       >
-
         <div className="section-heading">
           <span className="section-kicker">
             ONLINE RECORD
           </span>
 
-          <h2>Вход в аккаунт</h2>
-
-          <p>
-            Войди в аккаунт, чтобы записаться
-            на приём в NOMAD College.
-          </p>
+          <h2>{t.title}</h2>
+          <p>{t.description}</p>
         </div>
 
         <div
@@ -160,15 +180,12 @@ function Login() {
             margin: '0 auto',
           }}
         >
-
           {isAuthenticated ? (
-
-            // ПОЛЬЗОВАТЕЛЬ УЖЕ АВТОРИЗОВАН
             <div>
-              <h3>Вход выполнен успешно!</h3>
+              <h3>{t.success}</h3>
 
               <p style={{ margin: '16px 0 24px' }}>
-                Ты вошёл как:{' '}
+                {t.loggedInAs}{' '}
                 <strong>{currentUser}</strong>
               </p>
 
@@ -179,12 +196,11 @@ function Login() {
                   flexWrap: 'wrap',
                 }}
               >
-
                 <Link
                   to="/booking"
                   className="button button-primary"
                 >
-                  Перейти к записи →
+                  {t.goToBooking}
                 </Link>
 
                 <button
@@ -195,32 +211,25 @@ function Login() {
                     cursor: 'pointer',
                   }}
                 >
-                  Выйти
+                  {t.logout}
                 </button>
-
               </div>
             </div>
-
           ) : (
-
-            // ФОРМА ВХОДА
             <form onSubmit={handleSubmit}>
-
               <div
                 style={{
                   display: 'grid',
                   gap: '20px',
                 }}
               >
-
-                {/* ЛОГИН */}
                 <label
                   style={{
                     display: 'grid',
                     gap: '8px',
                   }}
                 >
-                  <span>Логин *</span>
+                  <span>{t.username} *</span>
 
                   <input
                     type="text"
@@ -228,19 +237,18 @@ function Login() {
                     value={form.username}
                     onChange={handleChange}
                     autoComplete="username"
-                    placeholder="Введите логин"
+                    placeholder={t.usernamePlaceholder}
                     required
                   />
                 </label>
 
-                {/* ПАРОЛЬ */}
                 <label
                   style={{
                     display: 'grid',
                     gap: '8px',
                   }}
                 >
-                  <span>Пароль *</span>
+                  <span>{t.password} *</span>
 
                   <input
                     type="password"
@@ -248,14 +256,12 @@ function Login() {
                     value={form.password}
                     onChange={handleChange}
                     autoComplete="current-password"
-                    placeholder="Введите пароль"
+                    placeholder={t.passwordPlaceholder}
                     required
                   />
                 </label>
-
               </div>
 
-              {/* СООБЩЕНИЕ ОБ ОШИБКЕ */}
               {error && (
                 <p
                   role="alert"
@@ -269,7 +275,6 @@ function Login() {
                 </p>
               )}
 
-              {/* КНОПКА ВХОДА */}
               <button
                 className="button button-primary"
                 type="submit"
@@ -281,43 +286,34 @@ function Login() {
                   opacity: loading ? 0.7 : 1,
                 }}
               >
-                {loading
-                  ? 'Выполняется вход...'
-                  : 'Войти'}
+                {loading ? t.loading : t.login}
               </button>
 
-              {/* ПЕРЕХОД К РЕГИСТРАЦИИ */}
               <p style={{ marginTop: '22px' }}>
-                Нет аккаунта?{' '}
+                {t.noAccount}{' '}
                 <Link to="/register">
-                  Зарегистрироваться
+                  {t.register}
                 </Link>
               </p>
-
             </form>
-
           )}
         </div>
       </main>
 
-      {/* ПОДВАЛ */}
       <footer className="site-footer">
-
         <Link to="/" className="footer-brand">
           <span>ONLINE RECORD</span>
         </Link>
 
         <p>
           © {new Date().getFullYear()} Online Record.
-          Все права защищены.
+          {' '}{t.rights}
         </p>
 
         <span className="footer-year">
           NOMAD COLLEGE
         </span>
-
       </footer>
-
     </div>
   )
 }
