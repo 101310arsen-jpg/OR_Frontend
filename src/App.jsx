@@ -23,7 +23,7 @@ function App() {
         <BrowserRouter>
           <Routes>
 
-            {/* ГЛАВНАЯ СТРАНИЦА */}
+            {/* ГЛАВНАЯ */}
             <Route
               path="/"
               element={<Home />}
@@ -41,17 +41,13 @@ function App() {
               element={<Register />}
             />
 
-            {/* ЗАЩИЩЁННАЯ СТРАНИЦА ЗАПИСИ */}
+            {/* ЗАПИСЬ ДОСТУПНА ДЛЯ ПРОСМОТРА ВСЕМ */}
             <Route
               path="/booking"
-              element={
-                <ProtectedRoute>
-                  <Booking />
-                </ProtectedRoute>
-              }
+              element={<Booking />}
             />
 
-            {/* ЗАЩИЩЁННЫЕ ЗАПИСИ СТУДЕНТА */}
+            {/* МОИ ЗАПИСИ — ТОЛЬКО ПОСЛЕ ВХОДА */}
             <Route
               path="/my-bookings"
               element={
