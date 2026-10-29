@@ -1,24 +1,33 @@
 
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import {
+  Link,
+  useNavigate,
+  useLocation,
+} from 'react-router-dom'
 
 import { useAuth } from '../context/AuthContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
-import { api, getApiErrorMessage } from '../services/api.js'
+import {
+  api,
+  getApiErrorMessage,
+} from '../services/api.js'
 
 import { translations } from '../locales/index.js'
 import Header from '../components/Header.jsx'
 import '../App.css'
 
-// Переводы страницы входа
-
-
 function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
 
+  // Язык сайта
   const { language } = useLanguage()
-  const t = translations[language]?.login || translations.RU.login
+  const t =
+    translations[language]?.login ||
+    translations.RU.login
 
+  // Авторизация
   const {
     login,
     logout,
@@ -26,6 +35,18 @@ function Login() {
     currentUser,
   } = useAuth()
 
+  // Страница, которую студент хотел открыть
+  const requestedPath = location.state?.from
+
+  // Разрешаем возвращаться только на
+  // известные защищённые маршруты.
+  const destination =
+    typeof requestedPath === 'string' &&
+    /^\/(?:booking|my-bookings)(?:[?#]|$)/.test(requestedPath)
+      ? requestedPath
+      : '/booking'
+
+  // Поля формы
   const [form, setForm] = useState({
     username: '',
     password: '',
@@ -34,7 +55,10 @@ function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Изменение полей формы
+  // ==========================================
+  // 1. ИЗМЕНЕНИЕ ПОЛЕЙ
+  // ==========================================
+
   const handleChange = (event) => {
     const { name, value } = event.target
 
@@ -46,9 +70,9 @@ function Login() {
     setError('')
   }
 
-  // ======================================
-  // АВТОРИЗАЦИЯ ЧЕРЕЗ ЕДИНЫЙ API-СЕРВИС
-  // ======================================
+  // ==========================================
+  // 2. ВХОД ЧЕРЕЗ DJANGO API
+  // ==========================================
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -59,31 +83,31 @@ function Login() {
     setError('')
 
     try {
-      // Отправляем запрос через api.js
+      const username = form.username.trim()
+
+      // Запрашиваем JWT-токен
       const data = await api.login(
-        form.username.trim(),
+        username,
         form.password
       )
 
-      // Проверяем, вернул ли Django JWT
       if (!data?.access) {
         throw new Error(t.tokenError)
       }
 
-      // Сохраняем авторизацию в AuthContext
-      login(
-        data.access,
-        form.username.trim()
-      )
+      // Сохраняем авторизацию
+      login(data.access, username)
 
-      // Очищаем форму
+      // Очищаем поля
       setForm({
         username: '',
         password: '',
       })
 
-      // Открываем страницу записи
-      navigate('/booking')
+      // Возвращаем студента на нужную страницу
+      navigate(destination, {
+        replace: true,
+      })
 
     } catch (err) {
       console.error('Ошибка авторизации:', err)
@@ -91,7 +115,10 @@ function Login() {
       setError(
         err.message === t.tokenError
           ? t.tokenError
-          : getApiErrorMessage(err, t.loginError)
+          : getApiErrorMessage(
+              err,
+              t.loginError
+            )
       )
 
     } finally {
@@ -99,9 +126,9 @@ function Login() {
     }
   }
 
-  // ======================================
-  // ИНТЕРФЕЙС
-  // ======================================
+  // ==========================================
+  // 3. ИНТЕРФЕЙС
+  // ==========================================
 
   return (
     <div className="site-wrapper">
@@ -115,6 +142,8 @@ function Login() {
           paddingBottom: '100px',
         }}
       >
+
+        {/* ЗАГОЛОВОК */}
         <div className="section-heading">
           <span className="section-kicker">
             ONLINE RECORD
@@ -134,7 +163,7 @@ function Login() {
 
           {isAuthenticated ? (
 
-            // Уже авторизован
+            /* СТУДЕНТ УЖЕ ВОШЁЛ */
             <div>
               <h3>{t.success}</h3>
 
@@ -154,8 +183,9 @@ function Login() {
                   flexWrap: 'wrap',
                 }}
               >
+
                 <Link
-                  to="/booking"
+                  to={destination}
                   className="button button-primary"
                 >
                   {t.goToBooking}
@@ -171,12 +201,13 @@ function Login() {
                 >
                   {t.logout}
                 </button>
+
               </div>
             </div>
 
           ) : (
 
-            // Форма авторизации
+            /* ФОРМА АВТОРИЗАЦИИ */
             <form onSubmit={handleSubmit}>
 
               <div
@@ -225,9 +256,10 @@ function Login() {
                     required
                   />
                 </label>
+
               </div>
 
-              {/* СООБЩЕНИЕ ОБ ОШИБКЕ */}
+              {/* ОШИБКА */}
               {error && (
                 <p
                   role="alert"
@@ -281,6 +313,7 @@ function Login() {
 
       {/* ПОДВАЛ */}
       <footer className="site-footer">
+
         <Link
           to="/"
           className="footer-brand"
@@ -296,8 +329,8 @@ function Login() {
         <span className="footer-year">
           NOMAD COLLEGE
         </span>
-      </footer>
 
+      </footer>
     </div>
   )
 }
