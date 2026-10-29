@@ -19,7 +19,7 @@ function Home() {
   const { language } = useLanguage()
   const { isAuthenticated } = useAuth()
 
-  const t = translations[language] || translations.RU
+  const t = translations[language]?.home || translations.RU.home
 
   // ======================================
   // 2. СОСТОЯНИЯ ВОПРОСОВ

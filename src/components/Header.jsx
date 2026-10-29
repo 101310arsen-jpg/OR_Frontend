@@ -1,45 +1,16 @@
 
 import { Link } from 'react-router-dom'
+import { translations } from '../locales/index.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 
-const navigation = {
-  RU: {
-    home: 'Главная',
-    about: 'О проекте',
-    how: 'Как это работает',
-    questions: 'Вопросы',
-    booking: 'Записаться',
-    myBookings: 'Мои записи',
-    login: 'Войти',
-  },
 
-  KG: {
-    home: 'Башкы бет',
-    about: 'Долбоор жөнүндө',
-    how: 'Кантип иштейт',
-    questions: 'Суроолор',
-    booking: 'Жазылуу',
-    myBookings: 'Менин жазылууларым',
-    login: 'Кирүү',
-  },
-
-  EN: {
-    home: 'Home',
-    about: 'About',
-    how: 'How it works',
-    questions: 'Questions',
-    booking: 'Book now',
-    myBookings: 'My bookings',
-    login: 'Sign in',
-  },
-}
 
 function Header({ showHomeNav = false }) {
   const { isAuthenticated, currentUser } = useAuth()
   const { language, setLanguage } = useLanguage()
 
-  const t = navigation[language] || navigation.RU
+  const t = translations[language]?.header || translations.RU.header
 
   return (
     <header className="site-header">

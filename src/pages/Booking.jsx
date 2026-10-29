@@ -4,200 +4,51 @@ import { Link } from 'react-router-dom'
 
 import { useAuth } from '../context/AuthContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
-import {
-  api,
-  ApiError,
-  getApiErrorMessage,
-} from '../services/api.js'
-
+import { api, ApiError, getApiErrorMessage } from '../services/api.js'
+import { translations } from '../locales/index.js'
 import Header from '../components/Header.jsx'
+
 import '../App.css'
+
 
 // ==========================================
 // 1. ПЕРЕВОДЫ СТРАНИЦЫ
 // ==========================================
 
-const translations = {
-  RU: {
-    title: 'Мои записи',
-    description:
-      'Просматривай свои записи и управляй посещениями NOMAD College.',
-    loginRequired: 'Необходима авторизация',
-    loginDescription:
-      'Чтобы посмотреть свои записи, сначала войди в аккаунт.',
-    login: 'Войти →',
-    student: 'Студент',
-    refresh: 'Обновить',
-    loading: 'Загружаем твои записи...',
-    noBookings: 'У тебя пока нет записей',
-    noBookingsDescription:
-      'Выбери вопрос, дату и удобное время, чтобы записаться на приём.',
-    book: 'Записаться →',
-    bookAgain: 'Записаться ещё →',
-    bookingNumber: 'Запись №',
-    appointment: 'Приём',
-    date: 'Дата посещения',
-    time: 'Время приёма',
-    duration: 'Продолжительность',
-    minutes: 'минут',
-    code: 'Код записи',
-    question: 'Вопрос',
-    cancel: 'Отменить запись',
-    cancelling: 'Отменяем запись...',
-    cancelConfirm:
-      'Ты действительно хочешь отменить запись №',
-    cancelSuccessStart: 'Запись №',
-    cancelSuccessEnd: 'успешно отменена.',
-    loadError: 'Не удалось загрузить записи.',
-    cancelError: 'Не удалось отменить запись.',
-    authExpired:
-      'Срок действия авторизации истёк. Войди заново.',
-    rights: 'Все права защищены.',
-    statuses: {
-      active: 'Активна',
-      booked: 'Забронирована',
-      cancelled: 'Отменена',
-      done: 'Завершена',
-      unknown: 'Неизвестно',
-    },
-  },
 
-  KG: {
-    title: 'Менин жазылууларым',
-    description:
-      'NOMAD College кабыл алуусуна жазылууларыңды көр жана башкар.',
-    loginRequired: 'Аккаунтка кирүү керек',
-    loginDescription:
-      'Жазылууларыңды көрүү үчүн адегенде аккаунтуңа кир.',
-    login: 'Кирүү →',
-    student: 'Студент',
-    refresh: 'Жаңыртуу',
-    loading: 'Жазылууларың жүктөлүүдө...',
-    noBookings: 'Азырынча жазылууларың жок',
-    noBookingsDescription:
-      'Кабыл алууга жазылуу үчүн суроону, күндү жана ыңгайлуу убакытты танда.',
-    book: 'Жазылуу →',
-    bookAgain: 'Кайра жазылуу →',
-    bookingNumber: 'Жазылуу №',
-    appointment: 'Кабыл алуу',
-    date: 'Кабыл алуу күнү',
-    time: 'Кабыл алуу убактысы',
-    duration: 'Узактыгы',
-    minutes: 'мүнөт',
-    code: 'Жазылуу коду',
-    question: 'Суроо',
-    cancel: 'Жазылууну жокко чыгаруу',
-    cancelling: 'Жазылуу жокко чыгарылууда...',
-    cancelConfirm: 'Чын эле №',
-    cancelConfirmEnd:
-      'жазылууну жокко чыгаргың келеби?',
-    cancelSuccessStart: '№',
-    cancelSuccessEnd: 'жазылуу жокко чыгарылды.',
-    loadError: 'Жазылуулар жүктөлгөн жок.',
-    cancelError:
-      'Жазылууну жокко чыгаруу мүмкүн болгон жок.',
-    authExpired:
-      'Авторизациянын мөөнөтү бүттү. Кайра кир.',
-    rights: 'Бардык укуктар корголгон.',
-    statuses: {
-      active: 'Активдүү',
-      booked: 'Брондолгон',
-      cancelled: 'Жокко чыгарылган',
-      done: 'Аяктаган',
-      unknown: 'Белгисиз',
-    },
-  },
 
-  EN: {
-    title: 'My bookings',
-    description:
-      'View your appointments and manage your visits to NOMAD College.',
-    loginRequired: 'Sign in required',
-    loginDescription:
-      'Please sign in to see your bookings.',
-    login: 'Sign in →',
-    student: 'Student',
-    refresh: 'Refresh',
-    loading: 'Loading your bookings...',
-    noBookings: 'You have no bookings yet',
-    noBookingsDescription:
-      'Choose a question, date, and convenient time to book an appointment.',
-    book: 'Book now →',
-    bookAgain: 'Book another appointment →',
-    bookingNumber: 'Booking #',
-    appointment: 'Appointment',
-    date: 'Appointment date',
-    time: 'Appointment time',
-    duration: 'Duration',
-    minutes: 'minutes',
-    code: 'Booking code',
-    question: 'Question',
-    cancel: 'Cancel booking',
-    cancelling: 'Cancelling booking...',
-    cancelConfirm:
-      'Are you sure you want to cancel booking #',
-    cancelSuccessStart: 'Booking #',
-    cancelSuccessEnd:
-      'has been cancelled successfully.',
-    loadError: 'Could not load your bookings.',
-    cancelError: 'Could not cancel the booking.',
-    authExpired:
-      'Your session has expired. Please sign in again.',
-    rights: 'All rights reserved.',
-    statuses: {
-      active: 'Active',
-      booked: 'Booked',
-      cancelled: 'Cancelled',
-      done: 'Completed',
-      unknown: 'Unknown',
-    },
-  },
+// ==========================================
+// 2. РАБОТА С ДАТОЙ
+// ==========================================
+
+// Дата в формате YYYY-MM-DD
+function getLocalDate(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+// По умолчанию — завтрашний день
+function getTomorrow() {
+  const date = new Date()
+  date.setDate(date.getDate() + 1)
+
+  return getLocalDate(date)
 }
 
 // ==========================================
-// 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// 3. СООБЩЕНИЯ ОБ ОШИБКАХ DJANGO
 // ==========================================
 
-function formatDate(value, language) {
-  if (!value) return '—'
-
-  const date = new Date(`${value}T00:00:00`)
-
-  if (Number.isNaN(date.getTime())) {
-    return value
-  }
-
-  const locales = {
-    RU: 'ru-RU',
-    KG: 'ky-KG',
-    EN: 'en-US',
-  }
-
-  return date.toLocaleDateString(
-    locales[language] || 'ru-RU',
-    {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    }
-  )
-}
-
-function getStatusLabel(status, t) {
-  return (
-    t.statuses[status] ||
-    status ||
-    t.statuses.unknown
-  )
-}
-
 // ==========================================
-// 3. ОСНОВНОЙ КОМПОНЕНТ
+// 4. ОСНОВНОЙ КОМПОНЕНТ
 // ==========================================
 
-function MyBookings() {
+function Booking() {
   const { language } = useLanguage()
-  const t = translations[language] || translations.RU
+  const t = translations[language]?.booking || translations.RU.booking
 
   const {
     accessToken,
@@ -205,174 +56,215 @@ function MyBookings() {
     currentUser,
   } = useAuth()
 
-  const [bookings, setBookings] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  // Список вопросов
+  const [questions, setQuestions] = useState([])
+  const [questionsLoading, setQuestionsLoading] = useState(true)
+  const [questionsError, setQuestionsError] = useState('')
 
-  const [cancelledBookingId, setCancelledBookingId] =
-    useState(null)
+  // Выбор студента
+  const [questionId, setQuestionId] = useState('')
+  const [date, setDate] = useState(getTomorrow)
+  const [time, setTime] = useState('')
 
-  const [cancellingId, setCancellingId] = useState(null)
+  // Доступные интервалы времени
+  const [slots, setSlots] = useState([])
+  const [duration, setDuration] = useState(null)
+  const [slotsLoading, setSlotsLoading] = useState(false)
+  const [slotsError, setSlotsError] = useState('')
+
+  // Создание записи
+  const [submitting, setSubmitting] = useState(false)
+  const [bookingResult, setBookingResult] = useState(null)
+  const [bookingError, setBookingError] = useState('')
+
+  // Счётчик обновления времени
   const [refreshCounter, setRefreshCounter] = useState(0)
 
   // ==========================================
-  // 4. ПОЛУЧАЕМ ЗАПИСИ ЧЕРЕЗ API-СЕРВИС
+  // 5. ЗАГРУЗКА ВОПРОСОВ ИЗ DJANGO
   // ==========================================
 
   useEffect(() => {
-    if (!accessToken) {
-      setBookings([])
-      setLoading(false)
-      setError('')
-      setCancelledBookingId(null)
+    const controller = new AbortController()
+
+    async function loadQuestions() {
+      setQuestionsLoading(true)
+      setQuestionsError('')
+
+      try {
+        const data = await api.getQuestions(controller.signal)
+
+        const items = Array.isArray(data)
+          ? data
+          : data?.results ?? data?.value ?? []
+
+        if (!controller.signal.aborted) {
+          setQuestions(items)
+        }
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error('Questions error:', error)
+          setQuestionsError('LOAD_ERROR')
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setQuestionsLoading(false)
+        }
+      }
+    }
+
+    loadQuestions()
+
+    return () => controller.abort()
+  }, [])
+
+  // ==========================================
+  // 6. ЗАГРУЗКА СВОБОДНОГО ВРЕМЕНИ
+  // ==========================================
+
+  useEffect(() => {
+    setSlots([])
+    setTime('')
+    setDuration(null)
+    setSlotsError('')
+
+    if (!accessToken || !questionId || !date) {
+      setSlotsLoading(false)
       return
     }
 
     const controller = new AbortController()
 
-    async function loadBookings() {
-      setLoading(true)
-      setError('')
+    async function loadSlots() {
+      setSlotsLoading(true)
 
       try {
-        // Запрашиваем список через api.js
-        const data = await api.getMyBookings(
-          accessToken,
-          controller.signal
-        )
+        const data = await api.getBookingSlots({
+          question: questionId,
+          date,
+          token: accessToken,
+          signal: controller.signal,
+        })
 
-        // Поддерживаем список и пагинацию
-        const items = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.results)
-            ? data.results
-            : data?.id != null
-              ? [data]
-              : []
-
-        if (!controller.signal.aborted) {
-          setBookings(items)
+        if (!Array.isArray(data?.slots)) {
+          throw new Error('INVALID_RESPONSE')
         }
 
-      } catch (err) {
         if (!controller.signal.aborted) {
-          console.error(
-            'Ошибка загрузки записей:',
-            err
+          setSlots(data.slots)
+          setDuration(
+            Number(data.duration) || null
           )
-
-          if (err instanceof ApiError &&
-              err.status === 401) {
-            setError('AUTH_EXPIRED')
+        }
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error('Slots error:', error)
+          if (error instanceof ApiError && error.status === 401) {
+            setSlotsError('AUTH_EXPIRED')
+          } else if (error.message === 'INVALID_RESPONSE') {
+            setSlotsError('INVALID_RESPONSE')
           } else {
-            setError(
-              getApiErrorMessage(err, 'LOAD_ERROR')
-            )
+            setSlotsError(getApiErrorMessage(error, 'SLOTS_ERROR'))
           }
         }
-
       } finally {
         if (!controller.signal.aborted) {
-          setLoading(false)
+          setSlotsLoading(false)
         }
       }
     }
 
-    loadBookings()
+    loadSlots()
 
     return () => controller.abort()
-  }, [accessToken, refreshCounter])
+  }, [
+    accessToken,
+    questionId,
+    date,
+    refreshCounter,
+  ])
 
   // ==========================================
-  // 5. ОТМЕНА ЗАПИСИ ЧЕРЕЗ API-СЕРВИС
+  // 7. СОЗДАНИЕ ЗАПИСИ
   // ==========================================
 
-  const handleCancel = async (booking) => {
-    if (
-      !booking?.id ||
-      !accessToken ||
-      cancellingId !== null ||
-      booking.status !== 'active'
-    ) {
+  const handleBooking = async (event) => {
+    event.preventDefault()
+
+    if (submitting) return
+
+    setBookingError('')
+    setBookingResult(null)
+
+    if (!accessToken) {
+      setBookingError('MISSING_AUTH')
       return
     }
 
-    // Подтверждение отмены
-    const confirmationText =
-      language === 'KG'
-        ? `${t.cancelConfirm}${booking.id} ${t.cancelConfirmEnd}`
-        : `${t.cancelConfirm}${booking.id}?`
-
-    if (!window.confirm(confirmationText)) {
+    if (!questionId || !date || !time || !duration) {
+      setBookingError('MISSING_FIELDS')
       return
     }
 
-    setCancellingId(booking.id)
-    setError('')
-    setCancelledBookingId(null)
+    if (!slots.includes(time)) {
+      setBookingError('INVALID_SLOT')
+      return
+    }
+
+    setSubmitting(true)
 
     try {
-      // Запрос отмены через единый API
-      await api.cancelBooking(
-        booking.id,
-        accessToken
-      )
+      const data = await api.createBooking({
+        question: Number(questionId),
+        date,
+        time: time.length === 5 ? `${time}:00` : time,
+        duration,
+        token: accessToken,
+      })
 
-      // Сохраняем ID отменённой записи
-      setCancelledBookingId(booking.id)
+      // Сохраняем успешный результат
+      setBookingResult(data ?? {})
+      setTime('')
 
-      // Обновляем список из Django
+      // Перезагружаем доступное время
       setRefreshCounter(
         (previous) => previous + 1
       )
-
-    } catch (err) {
-      console.error(
-        'Ошибка отмены записи:',
-        err
-      )
-
-      if (err instanceof ApiError &&
-          err.status === 401) {
-        setError('AUTH_EXPIRED')
+    } catch (error) {
+      console.error('Booking error:', error)
+      if (error instanceof ApiError && error.status === 401) {
+        setBookingError('AUTH_EXPIRED')
       } else {
-        setError(
-          getApiErrorMessage(err, 'CANCEL_ERROR')
-        )
+        setBookingError(getApiErrorMessage(error, 'BOOKING_ERROR'))
       }
-
     } finally {
-      setCancellingId(null)
+      setSubmitting(false)
     }
   }
 
-  // ==========================================
-  // 6. РУЧНОЕ ОБНОВЛЕНИЕ СПИСКА
-  // ==========================================
-
-  const reloadBookings = () => {
-    setCancelledBookingId(null)
-    setRefreshCounter(
-      (previous) => previous + 1
-    )
-  }
-
-  // ==========================================
-  // 7. ПЕРЕВОД ОШИБОК
-  // ==========================================
-
-  function translateError(code) {
-    const errors = {
+  // Перевод ошибок, созданных самим Frontend
+  function translateError(code, fallback) {
+    const errorCodes = {
       AUTH_EXPIRED: t.authExpired,
-      LOAD_ERROR: t.loadError,
-      CANCEL_ERROR: t.cancelError,
+      LOAD_ERROR: t.questionsError,
+      SLOTS_ERROR: t.slotsError,
+      BOOKING_ERROR: t.bookingError,
+      INVALID_RESPONSE: t.invalidResponse,
+      MISSING_AUTH: t.missingAuth,
+      MISSING_FIELDS: t.missingFields,
+      INVALID_SLOT: t.invalidSlot,
     }
 
-    return errors[code] || code
+    return errorCodes[code] || fallback || code
+  }
+
+  const fieldStyle = {
+    display: 'grid',
+    gap: '8px',
   }
 
   // ==========================================
-  // 8. ИНТЕРФЕЙС
+  // 8. ИНТЕРФЕЙС СТРАНИЦЫ
   // ==========================================
 
   return (
@@ -399,331 +291,313 @@ function MyBookings() {
           <p>{t.description}</p>
         </div>
 
-        {!isAuthenticated ? (
-
-          /* НЕ АВТОРИЗОВАН */
+        {/* МОИ ЗАПИСИ */}
+        {isAuthenticated && (
           <div
-            className="feature-card"
             style={{
-              maxWidth: '680px',
-              margin: '0 auto',
+              textAlign: 'center',
+              marginBottom: '32px',
             }}
           >
-            <h3>{t.loginRequired}</h3>
-
-            <p style={{ margin: '18px 0 25px' }}>
-              {t.loginDescription}
-            </p>
-
             <Link
-              to="/login"
-              className="button button-primary"
+              to="/my-bookings"
+              className="button button-secondary"
             >
-              {t.login}
+              {t.myBookings}
             </Link>
           </div>
+        )}
 
-        ) : (
+        <div
+          className="feature-card"
+          style={{
+            maxWidth: '780px',
+            margin: '0 auto',
+          }}
+        >
 
-          /* СОДЕРЖИМОЕ СТРАНИЦЫ */
-          <div
-            style={{
-              maxWidth: '900px',
-              margin: '0 auto',
-            }}
-          >
+          {/* НЕ АВТОРИЗОВАН */}
+          {!isAuthenticated ? (
+            <div>
+              <h3>{t.loginRequired}</h3>
 
-            {/* ПАНЕЛЬ СТУДЕНТА */}
-            <div
-              className="feature-card"
-              style={{ marginBottom: '25px' }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: '16px',
-                }}
-              >
-                <div>
-                  <p>{t.student}</p>
-
-                  <h3 style={{ marginTop: '5px' }}>
-                    {currentUser}
-                  </h3>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={reloadBookings}
-                  disabled={loading || cancellingId !== null}
-                  className="button button-secondary"
-                  style={{ cursor: 'pointer' }}
-                >
-                  {t.refresh}
-                </button>
-              </div>
-            </div>
-
-            {/* ЗАГРУЗКА */}
-            {loading && (
-              <p style={{ textAlign: 'center' }}>
-                {t.loading}
+              <p style={{ margin: '18px 0 25px' }}>
+                {t.loginDescription}
               </p>
-            )}
 
-            {/* ОШИБКА */}
-            {error && (
+              <Link
+                to="/login"
+                className="button button-primary"
+              >
+                {t.login}
+              </Link>
+            </div>
+          ) : (
+
+            /* ФОРМА ЗАПИСИ */
+            <form onSubmit={handleBooking}>
+
+              {/* СТУДЕНТ */}
+              <p style={{ marginBottom: '25px' }}>
+                {t.student}:{' '}
+                <strong>{currentUser}</strong>
+              </p>
+
+              {/* ВОПРОС И ДАТА */}
               <div
-                role="alert"
                 style={{
-                  padding: '16px',
-                  marginBottom: '20px',
-                  background: '#fff1f1',
-                  color: '#d51f32',
-                  borderRadius: '10px',
-                  overflowWrap: 'anywhere',
+                  display: 'grid',
+                  gridTemplateColumns:
+                    'repeat(auto-fit, minmax(220px, 1fr))',
+                  gap: '20px',
                 }}
               >
-                {translateError(error)}
-              </div>
-            )}
 
-            {/* УСПЕШНАЯ ОТМЕНА */}
-            {cancelledBookingId !== null && (
-              <div
-                role="status"
-                style={{
-                  padding: '16px',
-                  marginBottom: '20px',
-                  background: '#eef8f0',
-                  color: '#167a3f',
-                  borderRadius: '10px',
-                }}
-              >
-                {t.cancelSuccessStart}
-                {cancelledBookingId}{' '}
-                {t.cancelSuccessEnd}
-              </div>
-            )}
+                {/* ВОПРОС */}
+                <label style={fieldStyle}>
+                  <span>{t.question} *</span>
 
-            {/* НЕТ ЗАПИСЕЙ */}
-            {!loading &&
-              !error &&
-              bookings.length === 0 && (
-                <div
-                  className="feature-card"
-                  style={{ textAlign: 'center' }}
-                >
-                  <h3>{t.noBookings}</h3>
-
-                  <p style={{ margin: '16px 0 25px' }}>
-                    {t.noBookingsDescription}
-                  </p>
-
-                  <Link
-                    to="/booking"
-                    className="button button-primary"
+                  <select
+                    value={questionId}
+                    onChange={(event) => {
+                      setQuestionId(event.target.value)
+                      setBookingError('')
+                      setBookingResult(null)
+                    }}
+                    required
+                    disabled={questionsLoading}
                   >
-                    {t.book}
-                  </Link>
-                </div>
+                    <option value="">
+                      {t.chooseQuestion}
+                    </option>
+
+                    {questions.map((question) => (
+                      <option
+                        key={question.id}
+                        value={question.id}
+                      >
+                        {question.text ??
+                          question.title ??
+                          `${t.questionFallback}${question.id}`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                {/* ДАТА */}
+                <label style={fieldStyle}>
+                  <span>{t.date} *</span>
+
+                  <input
+                    type="date"
+                    value={date}
+                    min={getLocalDate(new Date())}
+                    onChange={(event) => {
+                      setDate(event.target.value)
+                      setBookingError('')
+                      setBookingResult(null)
+                    }}
+                    required
+                  />
+                </label>
+
+              </div>
+
+              {/* СОСТОЯНИЕ ЗАГРУЗКИ ВОПРОСОВ */}
+              {questionsLoading && (
+                <p style={{ marginTop: '16px' }}>
+                  {t.loadingQuestions}
+                </p>
               )}
 
-            {/* СПИСОК ЗАПИСЕЙ */}
-            {!loading &&
-              bookings.length > 0 && (
+              {questionsError && (
+                <p
+                  role="alert"
+                  style={{
+                    color: '#d51f32',
+                    marginTop: '16px',
+                  }}
+                >
+                  {t.questionsError}
+                </p>
+              )}
+
+              {/* СВОБОДНОЕ ВРЕМЯ */}
+              <div style={{ marginTop: '30px' }}>
+                <h3>{t.slotsTitle}</h3>
+
+                {!questionId && (
+                  <p style={{ marginTop: '12px' }}>
+                    {t.chooseQuestionFirst}
+                  </p>
+                )}
+
+                {slotsLoading && (
+                  <p style={{ marginTop: '12px' }}>
+                    {t.loadingSlots}
+                  </p>
+                )}
+
+                {slotsError && (
+                  <p
+                    role="alert"
+                    style={{
+                      color: '#d51f32',
+                      marginTop: '12px',
+                    }}
+                  >
+                    {translateError(slotsError)}
+                  </p>
+                )}
+
+                {!slotsLoading &&
+                  !slotsError &&
+                  questionId &&
+                  slots.length === 0 && (
+                    <p style={{ marginTop: '12px' }}>
+                      {t.noSlots}
+                    </p>
+                  )}
+
+                {duration && (
+                  <p style={{ marginTop: '12px' }}>
+                    {t.duration}:{' '}
+                    <strong>
+                      {duration} {t.minutes}
+                    </strong>
+                  </p>
+                )}
+
+                {/* КНОПКИ ВРЕМЕНИ */}
                 <div
                   style={{
                     display: 'grid',
-                    gap: '20px',
+                    gridTemplateColumns:
+                      'repeat(auto-fill, minmax(85px, 1fr))',
+                    gap: '10px',
+                    marginTop: '20px',
                   }}
                 >
-                  {bookings.map((booking) => {
-                    const canCancel =
-                      booking.status === 'active'
+                  {slots.map((slot) => (
+                    <button
+                      type="button"
+                      key={slot}
+                      onClick={() => {
+                        setTime(slot)
+                        setBookingError('')
+                        setBookingResult(null)
+                      }}
+                      aria-pressed={time === slot}
+                      style={{
+                        padding: '12px 8px',
+                        borderRadius: '10px',
+                        border:
+                          time === slot
+                            ? '2px solid #d51f32'
+                            : '1px solid #ddd',
+                        background:
+                          time === slot
+                            ? '#d51f32'
+                            : '#f5f5f5',
+                        color:
+                          time === slot
+                            ? '#fff'
+                            : '#222',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {slot}
+                    </button>
+                  ))}
+                </div>
 
-                    const isCancelling =
-                      cancellingId === booking.id
+              </div>
 
-                    const isCancelled =
-                      booking.status === 'cancelled'
+              {/* ОШИБКА ЗАПИСИ */}
+              {bookingError && (
+                <p
+                  role="alert"
+                  style={{
+                    color: '#d51f32',
+                    marginTop: '22px',
+                    overflowWrap: 'anywhere',
+                  }}
+                >
+                  {translateError(bookingError)}
+                </p>
+              )}
 
-                    return (
-                      <article
-                        className="feature-card"
-                        key={booking.id}
-                      >
+              {/* УСПЕШНАЯ ЗАПИСЬ */}
+              {bookingResult && (
+                <div
+                  role="status"
+                  style={{
+                    background: '#eef8f0',
+                    color: '#167a3f',
+                    padding: '18px',
+                    borderRadius: '10px',
+                    marginTop: '25px',
+                  }}
+                >
+                  <h3>{t.success}</h3>
 
-                        {/* ЗАГОЛОВОК И СТАТУС */}
-                        <div
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'flex-start',
-                            flexWrap: 'wrap',
-                            gap: '12px',
-                            marginBottom: '22px',
-                          }}
-                        >
-                          <div>
-                            <span className="section-kicker">
-                              {t.bookingNumber}
-                              {booking.id}
-                            </span>
+                  {bookingResult.id != null && (
+                    <p>
+                      {t.bookingId}:{' '}
+                      <strong>
+                        {bookingResult.id}
+                      </strong>
+                    </p>
+                  )}
 
-                            <h3 style={{ marginTop: '8px' }}>
-                              {booking.official ||
-                                t.appointment}
-                            </h3>
-                          </div>
+                  {bookingResult.code && (
+                    <p>
+                      {t.bookingCode}:{' '}
+                      <strong>
+                        {bookingResult.code}
+                      </strong>
+                    </p>
+                  )}
 
-                          <span
-                            style={{
-                              padding: '8px 14px',
-                              borderRadius: '20px',
-                              fontSize: '14px',
-                              fontWeight: '600',
-                              background: isCancelled
-                                ? '#f1f1f1'
-                                : '#eef8f0',
-                              color: isCancelled
-                                ? '#666'
-                                : '#167a3f',
-                            }}
-                          >
-                            {getStatusLabel(
-                              booking.status,
-                              t
-                            )}
-                          </span>
-                        </div>
-
-                        {/* ДЕТАЛИ ЗАПИСИ */}
-                        <div
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns:
-                              'repeat(auto-fit, minmax(180px, 1fr))',
-                            gap: '20px',
-                          }}
-                        >
-
-                          {/* ДАТА */}
-                          <div>
-                            <p>{t.date}</p>
-                            <strong>
-                              {formatDate(
-                                booking.date,
-                                language
-                              )}
-                            </strong>
-                          </div>
-
-                          {/* ВРЕМЯ */}
-                          <div>
-                            <p>{t.time}</p>
-                            <strong>
-                              {booking.time || '—'}
-                              {booking.end_time
-                                ? ` – ${booking.end_time}`
-                                : ''}
-                            </strong>
-                          </div>
-
-                          {/* ПРОДОЛЖИТЕЛЬНОСТЬ */}
-                          <div>
-                            <p>{t.duration}</p>
-                            <strong>
-                              {booking.duration ?? '—'}{' '}
-                              {t.minutes}
-                            </strong>
-                          </div>
-
-                          {/* КОД ЗАПИСИ */}
-                          <div>
-                            <p>{t.code}</p>
-                            <strong
-                              style={{
-                                color: '#d51f32',
-                                letterSpacing: '1px',
-                              }}
-                            >
-                              {booking.code || '—'}
-                            </strong>
-                          </div>
-                        </div>
-
-                        {/* ВОПРОС */}
-                        {booking.question_text && (
-                          <div style={{ marginTop: '24px' }}>
-                            <p>{t.question}</p>
-
-                            <strong>
-                              {booking.question_text}
-                            </strong>
-                          </div>
-                        )}
-
-                        {/* ОТМЕНА АКТИВНОЙ ЗАПИСИ */}
-                        {canCancel && (
-                          <div style={{ marginTop: '28px' }}>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleCancel(booking)
-                              }
-                              disabled={
-                                cancellingId !== null ||
-                                loading
-                              }
-                              style={{
-                                padding: '13px 22px',
-                                border: '1px solid #d51f32',
-                                borderRadius: '10px',
-                                background: '#fff',
-                                color: '#d51f32',
-                                fontSize: '15px',
-                                fontWeight: '600',
-                                cursor: isCancelling
-                                  ? 'wait'
-                                  : 'pointer',
-                              }}
-                            >
-                              {isCancelling
-                                ? t.cancelling
-                                : t.cancel}
-                            </button>
-                          </div>
-                        )}
-
-                      </article>
-                    )
-                  })}
+                  <div style={{ marginTop: '20px' }}>
+                    <Link
+                      to="/my-bookings"
+                      className="button button-primary"
+                    >
+                      {t.viewBookings}
+                    </Link>
+                  </div>
                 </div>
               )}
 
-            {/* СОЗДАТЬ ЕЩЁ ОДНУ ЗАПИСЬ */}
-            {!loading && bookings.length > 0 && (
-              <div
+              {/* КНОПКА ПОДТВЕРЖДЕНИЯ */}
+              <button
+                type="submit"
+                className="button button-primary"
+                disabled={
+                  submitting ||
+                  slotsLoading ||
+                  !questionId ||
+                  !time ||
+                  !duration
+                }
                 style={{
-                  marginTop: '30px',
-                  textAlign: 'center',
+                  border: 0,
+                  marginTop: '28px',
+                  cursor: submitting
+                    ? 'wait'
+                    : 'pointer',
                 }}
               >
-                <Link
-                  to="/booking"
-                  className="button button-primary"
-                >
-                  {t.bookAgain}
-                </Link>
-              </div>
-            )}
+                {submitting
+                  ? t.submitting
+                  : t.confirm}
+              </button>
 
-          </div>
-        )}
+            </form>
+          )}
+        </div>
       </main>
 
       {/* ПОДВАЛ */}
@@ -748,4 +622,4 @@ function MyBookings() {
   )
 }
 
-export default MyBookings
+export default Booking

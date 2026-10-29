@@ -6,92 +6,18 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { api, getApiErrorMessage } from '../services/api.js'
 
+import { translations } from '../locales/index.js'
 import Header from '../components/Header.jsx'
 import '../App.css'
 
 // Переводы страницы входа
-const translations = {
-  RU: {
-    title: 'Вход в аккаунт',
-    description:
-      'Войди в аккаунт, чтобы записаться на приём в NOMAD College.',
-    username: 'Логин',
-    password: 'Пароль',
-    usernamePlaceholder: 'Введите логин',
-    passwordPlaceholder: 'Введите пароль',
-    login: 'Войти',
-    loading: 'Выполняется вход...',
-    noAccount: 'Нет аккаунта?',
-    register: 'Зарегистрироваться',
-    success: 'Вход выполнен успешно!',
-    loggedInAs: 'Ты вошёл как:',
-    goToBooking: 'Перейти к записи →',
-    logout: 'Выйти',
-    loginError:
-      'Не удалось войти. Проверь логин и пароль.',
-    tokenError:
-      'Сервер не вернул access-токен.',
-    unknownError:
-      'Произошла ошибка при входе.',
-    rights: 'Все права защищены.',
-  },
 
-  KG: {
-    title: 'Аккаунтка кирүү',
-    description:
-      'NOMAD College кабыл алуусуна жазылуу үчүн аккаунтуңа кир.',
-    username: 'Логин',
-    password: 'Сырсөз',
-    usernamePlaceholder: 'Логинди киргиз',
-    passwordPlaceholder: 'Сырсөздү киргиз',
-    login: 'Кирүү',
-    loading: 'Кирүү аткарылууда...',
-    noAccount: 'Аккаунтуң жокпу?',
-    register: 'Катталуу',
-    success: 'Ийгиликтүү кирдиң!',
-    loggedInAs: 'Сенин аккаунтуң:',
-    goToBooking: 'Жазылууга өтүү →',
-    logout: 'Чыгуу',
-    loginError:
-      'Кирүү мүмкүн болгон жок. Логинди жана сырсөздү текшер.',
-    tokenError:
-      'Сервер access-токен кайтарган жок.',
-    unknownError:
-      'Кирүү учурунда ката кетти.',
-    rights: 'Бардык укуктар корголгон.',
-  },
-
-  EN: {
-    title: 'Sign in to your account',
-    description:
-      'Sign in to book an appointment at NOMAD College.',
-    username: 'Username',
-    password: 'Password',
-    usernamePlaceholder: 'Enter username',
-    passwordPlaceholder: 'Enter password',
-    login: 'Sign in',
-    loading: 'Signing in...',
-    noAccount: "Don't have an account?",
-    register: 'Register',
-    success: 'Signed in successfully!',
-    loggedInAs: 'Signed in as:',
-    goToBooking: 'Go to booking →',
-    logout: 'Log out',
-    loginError:
-      'Unable to sign in. Check your username and password.',
-    tokenError:
-      'The server did not return an access token.',
-    unknownError:
-      'An error occurred while signing in.',
-    rights: 'All rights reserved.',
-  },
-}
 
 function Login() {
   const navigate = useNavigate()
 
   const { language } = useLanguage()
-  const t = translations[language] || translations.RU
+  const t = translations[language]?.login || translations.RU.login
 
   const {
     login,

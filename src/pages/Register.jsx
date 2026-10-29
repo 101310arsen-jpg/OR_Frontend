@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { api, getApiErrorMessage } from '../services/api.js'
 
+import { translations } from '../locales/index.js'
 import Header from '../components/Header.jsx'
 import '../App.css'
 
@@ -12,85 +13,7 @@ import '../App.css'
 // 1. ПЕРЕВОДЫ СТРАНИЦЫ
 // ==========================================
 
-const translations = {
-  RU: {
-    title: 'Регистрация',
-    description:
-      'Создай аккаунт для онлайн-записи в NOMAD College.',
-    username: 'Логин',
-    password: 'Пароль',
-    firstName: 'Имя',
-    lastName: 'Фамилия',
-    phone: 'Номер телефона',
-    direction: 'Направление обучения',
-    course: 'Курс',
-    courseLabel: 'курс',
-    usernamePlaceholder: 'Придумай логин',
-    passwordPlaceholder: 'Не менее 8 символов',
-    firstNamePlaceholder: 'Введи имя',
-    lastNamePlaceholder: 'Введи фамилию',
-    phonePlaceholder: 'Введи номер телефона',
-    register: 'Зарегистрироваться',
-    registering: 'Регистрируем...',
-    alreadyAccount: 'Уже есть аккаунт?',
-    login: 'Войти',
-    registerError: 'Ошибка регистрации',
-    unknownError: 'Не удалось зарегистрироваться',
-    rights: 'Все права защищены.',
-  },
 
-  KG: {
-    title: 'Катталуу',
-    description:
-      'NOMAD College онлайн жазылуусу үчүн аккаунт түз.',
-    username: 'Логин',
-    password: 'Сырсөз',
-    firstName: 'Аты',
-    lastName: 'Фамилиясы',
-    phone: 'Телефон номери',
-    direction: 'Окуу багыты',
-    course: 'Курс',
-    courseLabel: 'курс',
-    usernamePlaceholder: 'Логин ойлоп тап',
-    passwordPlaceholder: 'Кеминде 8 белги',
-    firstNamePlaceholder: 'Атыңды киргиз',
-    lastNamePlaceholder: 'Фамилияңды киргиз',
-    phonePlaceholder: 'Телефон номериңди киргиз',
-    register: 'Катталуу',
-    registering: 'Катталууда...',
-    alreadyAccount: 'Аккаунтуң барбы?',
-    login: 'Кирүү',
-    registerError: 'Катталууда ката кетти',
-    unknownError: 'Катталуу мүмкүн болгон жок',
-    rights: 'Бардык укуктар корголгон.',
-  },
-
-  EN: {
-    title: 'Create an account',
-    description:
-      'Create an account to book appointments at NOMAD College.',
-    username: 'Username',
-    password: 'Password',
-    firstName: 'First name',
-    lastName: 'Last name',
-    phone: 'Phone number',
-    direction: 'Study program',
-    course: 'Year of study',
-    courseLabel: 'Year',
-    usernamePlaceholder: 'Choose a username',
-    passwordPlaceholder: 'At least 8 characters',
-    firstNamePlaceholder: 'Enter first name',
-    lastNamePlaceholder: 'Enter last name',
-    phonePlaceholder: 'Enter phone number',
-    register: 'Register',
-    registering: 'Registering...',
-    alreadyAccount: 'Already have an account?',
-    login: 'Sign in',
-    registerError: 'Registration error',
-    unknownError: 'Registration failed',
-    rights: 'All rights reserved.',
-  },
-}
 
 // ==========================================
 // 2. ОСНОВНОЙ КОМПОНЕНТ
@@ -100,7 +23,7 @@ function Register() {
   const navigate = useNavigate()
 
   const { language } = useLanguage()
-  const t = translations[language] || translations.RU
+  const t = translations[language]?.register || translations.RU.register
 
   // Данные формы
   const [form, setForm] = useState({

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { api, ApiError, getApiErrorMessage } from '../services/api.js'
+import { translations } from '../locales/index.js'
 import Header from '../components/Header.jsx'
 
 import '../App.css'
@@ -15,144 +16,7 @@ import '../App.css'
 // 1. ПЕРЕВОДЫ СТРАНИЦЫ
 // ==========================================
 
-const translations = {
-  RU: {
-    title: 'Мои записи',
-    description:
-      'Просматривай свои записи и управляй посещениями NOMAD College.',
-    loginRequired: 'Необходима авторизация',
-    loginDescription:
-      'Чтобы посмотреть свои записи, сначала войди в аккаунт.',
-    login: 'Войти →',
-    student: 'Студент',
-    refresh: 'Обновить',
-    loading: 'Загружаем твои записи...',
-    noBookings: 'У тебя пока нет записей',
-    noBookingsDescription:
-      'Выбери вопрос, дату и удобное время, чтобы записаться на приём.',
-    book: 'Записаться →',
-    bookAgain: 'Записаться ещё →',
-    bookingNumber: 'Запись №',
-    appointment: 'Приём',
-    date: 'Дата посещения',
-    time: 'Время приёма',
-    duration: 'Продолжительность',
-    minutes: 'минут',
-    code: 'Код записи',
-    question: 'Вопрос',
-    cancel: 'Отменить запись',
-    cancelling: 'Отменяем запись...',
-    cancelConfirm:
-      'Ты действительно хочешь отменить запись №',
-    cancelSuccessStart: 'Запись №',
-    cancelSuccessEnd: 'успешно отменена.',
-    loadError: 'Не удалось загрузить записи.',
-    cancelError: 'Не удалось отменить запись.',
-    unknownError: 'Произошла ошибка.',
-    authExpired:
-      'Срок действия авторизации истёк. Войди заново.',
-    rights: 'Все права защищены.',
-    statuses: {
-      active: 'Активна',
-      booked: 'Забронирована',
-      cancelled: 'Отменена',
-      done: 'Завершена',
-      unknown: 'Неизвестно',
-    },
-  },
 
-  KG: {
-    title: 'Менин жазылууларым',
-    description:
-      'NOMAD College кабыл алуусуна жазылууларыңды көр жана башкар.',
-    loginRequired: 'Аккаунтка кирүү керек',
-    loginDescription:
-      'Жазылууларыңды көрүү үчүн адегенде аккаунтуңа кир.',
-    login: 'Кирүү →',
-    student: 'Студент',
-    refresh: 'Жаңыртуу',
-    loading: 'Жазылууларың жүктөлүүдө...',
-    noBookings: 'Азырынча жазылууларың жок',
-    noBookingsDescription:
-      'Кабыл алууга жазылуу үчүн суроону, күндү жана ыңгайлуу убакытты танда.',
-    book: 'Жазылуу →',
-    bookAgain: 'Кайра жазылуу →',
-    bookingNumber: 'Жазылуу №',
-    appointment: 'Кабыл алуу',
-    date: 'Кабыл алуу күнү',
-    time: 'Кабыл алуу убактысы',
-    duration: 'Узактыгы',
-    minutes: 'мүнөт',
-    code: 'Жазылуу коду',
-    question: 'Суроо',
-    cancel: 'Жазылууну жокко чыгаруу',
-    cancelling: 'Жазылуу жокко чыгарылууда...',
-    cancelConfirm:
-      'Чын эле №',
-    cancelConfirmEnd:
-      'жазылууну жокко чыгаргың келеби?',
-    cancelSuccessStart: '№',
-    cancelSuccessEnd: 'жазылуу жокко чыгарылды.',
-    loadError: 'Жазылуулар жүктөлгөн жок.',
-    cancelError: 'Жазылууну жокко чыгаруу мүмкүн болгон жок.',
-    unknownError: 'Ката кетти.',
-    authExpired:
-      'Авторизациянын мөөнөтү бүттү. Кайра кир.',
-    rights: 'Бардык укуктар корголгон.',
-    statuses: {
-      active: 'Активдүү',
-      booked: 'Брондолгон',
-      cancelled: 'Жокко чыгарылган',
-      done: 'Аяктаган',
-      unknown: 'Белгисиз',
-    },
-  },
-
-  EN: {
-    title: 'My bookings',
-    description:
-      'View your appointments and manage your visits to NOMAD College.',
-    loginRequired: 'Sign in required',
-    loginDescription:
-      'Please sign in to see your bookings.',
-    login: 'Sign in →',
-    student: 'Student',
-    refresh: 'Refresh',
-    loading: 'Loading your bookings...',
-    noBookings: 'You have no bookings yet',
-    noBookingsDescription:
-      'Choose a question, date, and convenient time to book an appointment.',
-    book: 'Book now →',
-    bookAgain: 'Book another appointment →',
-    bookingNumber: 'Booking #',
-    appointment: 'Appointment',
-    date: 'Appointment date',
-    time: 'Appointment time',
-    duration: 'Duration',
-    minutes: 'minutes',
-    code: 'Booking code',
-    question: 'Question',
-    cancel: 'Cancel booking',
-    cancelling: 'Cancelling booking...',
-    cancelConfirm:
-      'Are you sure you want to cancel booking #',
-    cancelSuccessStart: 'Booking #',
-    cancelSuccessEnd: 'has been cancelled successfully.',
-    loadError: 'Could not load your bookings.',
-    cancelError: 'Could not cancel the booking.',
-    unknownError: 'An error occurred.',
-    authExpired:
-      'Your session has expired. Please sign in again.',
-    rights: 'All rights reserved.',
-    statuses: {
-      active: 'Active',
-      booked: 'Booked',
-      cancelled: 'Cancelled',
-      done: 'Completed',
-      unknown: 'Unknown',
-    },
-  },
-}
 
 // ==========================================
 // 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
@@ -199,7 +63,7 @@ function getStatusLabel(status, t) {
 
 function MyBookings() {
   const { language } = useLanguage()
-  const t = translations[language] || translations.RU
+  const t = translations[language]?.myBookings || translations.RU.myBookings
 
   const {
     accessToken,
