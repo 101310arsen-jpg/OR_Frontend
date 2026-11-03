@@ -376,15 +376,19 @@ function MyBookings() {
                             borderRadius: '20px',
                             fontSize: '14px',
                             fontWeight: '600',
-                            background:
-                              booking.status === 'cancelled'
+                           background:
+                            booking.status === 'active'
+                              ? '#eef8f0'
+                              : booking.status === 'cancelled'
                                 ? '#f1f1f1'
-                                : '#eef8f0',
-                            color:
-                              booking.status === 'cancelled'
+                                : '#eef4ff',
+                          color:
+                             booking.status === 'active'
+                              ? '#167a3f'
+                              : booking.status === 'cancelled'
                                 ? '#666'
-                                : '#167a3f',
-                          }}
+                                : '#2457a7',
+                            }}
                         >
                           {getStatusLabel(
                             booking.status,
